@@ -1,0 +1,12 @@
+# System Files
+.DS_Store
+Thumbs.db
+
+# Agent/User Specific
+AGENTS.md
+
+# Development
+vendor
+
+# Temporary
+tmp
