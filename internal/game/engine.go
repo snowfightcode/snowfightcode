@@ -48,9 +48,15 @@ func (e *Engine) applyAction(p *Player, action Action) {
 		rad := p.Angle * math.Pi / 180.0
 		p.X += math.Cos(rad) * action.Value
 		p.Y += math.Sin(rad) * action.Value
+		// Round coordinates to integers
+		p.X = math.Round(p.X)
+		p.Y = math.Round(p.Y)
 	case ActionTurn:
 		p.Angle += action.Value
-		// Normalize angle to 0-360 if needed, but for now raw is fine or we can normalize.
-		// Let's keep it simple.
+		// Normalize angle to 0-359 degrees
+		p.Angle = math.Mod(p.Angle, 360)
+		if p.Angle < 0 {
+			p.Angle += 360
+		}
 	}
 }
