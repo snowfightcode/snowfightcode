@@ -11,15 +11,15 @@ import (
 // Runtime defines the interface for a game script runtime.
 type Runtime interface {
 	Load(code string) error
-	Run(state game.GameState) (game.Action, error)
+	Run(state game.GameState) ([]game.Action, error)
 	Close()
 }
 
 // QuickJSRuntime implements Runtime using fastschema/qjs (WASM-based QuickJS).
 type QuickJSRuntime struct {
-	rt            *qjs.Runtime
-	ctx           *qjs.Context
-	currentAction game.Action
+	rt             *qjs.Runtime
+	ctx            *qjs.Context
+	currentActions []game.Action
 }
 
 // NewQuickJSRuntime creates a new QuickJSRuntime instance.
@@ -48,10 +48,10 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 		args := this.Args()
 		if len(args) > 0 {
 			val := args[0].Float64()
-			rt.currentAction = game.Action{
+			rt.currentActions = append(rt.currentActions, game.Action{
 				Type:  game.ActionMove,
 				Value: val,
-			}
+			})
 		}
 		return this.Context().NewNull(), nil
 	})
@@ -61,10 +61,10 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 		args := this.Args()
 		if len(args) > 0 {
 			val := args[0].Float64()
-			rt.currentAction = game.Action{
+			rt.currentActions = append(rt.currentActions, game.Action{
 				Type:  game.ActionTurn,
 				Value: val,
-			}
+			})
 		}
 		return this.Context().NewNull(), nil
 	})
@@ -95,12 +95,13 @@ func (rt *QuickJSRuntime) Load(code string) error {
 }
 
 // Run executes the 'run' function in the JS environment.
-func (rt *QuickJSRuntime) Run(state game.GameState) (game.Action, error) {
-	rt.currentAction = game.Action{Type: game.ActionNone}
+func (rt *QuickJSRuntime) Run(state game.GameState) ([]game.Action, error) {
+	// Reset actions for this tick
+	rt.currentActions = nil
 
 	stateBytes, err := json.Marshal(state)
 	if err != nil {
-		return game.Action{}, fmt.Errorf("failed to marshal state: %w", err)
+		return nil, fmt.Errorf("failed to marshal state: %w", err)
 	}
 
 	jsonStr := string(stateBytes)
@@ -113,8 +114,8 @@ func (rt *QuickJSRuntime) Run(state game.GameState) (game.Action, error) {
 
 	_, err = rt.ctx.Eval("run-script", qjs.Code(script))
 	if err != nil {
-		return game.Action{}, fmt.Errorf("execution error: %w", err)
+		return nil, fmt.Errorf("execution error: %w", err)
 	}
 
-	return rt.currentAction, nil
+	return rt.currentActions, nil
 }

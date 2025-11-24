@@ -31,10 +31,14 @@ func NewGame() *Engine {
 }
 
 // Update advances the game state by one tick.
-func (e *Engine) Update(p1Action, p2Action Action) {
+func (e *Engine) Update(p1Actions, p2Actions []Action) {
 	e.State.Tick++
-	e.applyAction(&e.State.P1, p1Action)
-	e.applyAction(&e.State.P2, p2Action)
+	for _, action := range p1Actions {
+		e.applyAction(&e.State.P1, action)
+	}
+	for _, action := range p2Actions {
+		e.applyAction(&e.State.P2, action)
+	}
 }
 
 func (e *Engine) applyAction(p *Player, action Action) {
