@@ -54,9 +54,10 @@ func (e *Engine) applyAction(p *Player, playerID int, action Action) {
 	switch action.Type {
 	case ActionMove:
 		// Convert angle to radians
+		// 0° = north (Y+), 90° = east (X+), 180° = south (Y-), 270° = west (X-)
 		rad := p.Angle * math.Pi / 180.0
-		newX := p.X + math.Cos(rad)*action.Value
-		newY := p.Y + math.Sin(rad)*action.Value
+		newX := p.X + math.Sin(rad)*action.Value
+		newY := p.Y + math.Cos(rad)*action.Value
 
 		// Clamp to field boundaries
 		halfWidth := float64(e.Config.Field.Width) / 2
@@ -92,6 +93,7 @@ func (e *Engine) applyAction(p *Player, playerID int, action Action) {
 		}
 
 		// Create snowball
+		// 0° = north (Y+), 90° = east (X+)
 		angle := float64(action.ThrowAngle)
 		rad := angle * math.Pi / 180.0
 		speed := float64(e.Config.Snowball.Speed)
@@ -101,8 +103,8 @@ func (e *Engine) applyAction(p *Player, playerID int, action Action) {
 			OwnerID:  playerID,
 			X:        p.X,
 			Y:        p.Y,
-			VX:       math.Cos(rad) * speed,
-			VY:       math.Sin(rad) * speed,
+			VX:       math.Sin(rad) * speed,
+			VY:       math.Cos(rad) * speed,
 			Target:   float64(action.ThrowDistance),
 			Traveled: 0,
 		}
