@@ -173,3 +173,31 @@ func TestScenario02_AngleTest(t *testing.T) {
 
 	t.Logf("✅ Angle mapping verified: 0°=north, 90°=east, 180°=south, 270°=west")
 }
+func TestScenario03_Boundary(t *testing.T) {
+	states := runScenario(t, "testdata/scenarios/03_boundary")
+
+	// Initial state
+	if states[0].P1.X != -50 || states[0].P1.Y != 0 {
+		t.Errorf("expected P1 initial position (-50,0), got (%f,%f)", states[0].P1.X, states[0].P1.Y)
+	}
+	if states[0].P1.Angle != 0 {
+		t.Errorf("expected P1 initial angle 0, got %f", states[0].P1.Angle)
+	}
+
+	// After first tick, Y should be clamped to +500 (field half height)
+	if states[1].P1.X != -50 {
+		t.Errorf("expected P1 X unchanged at -50 after clamping, got %f", states[1].P1.X)
+	}
+	if states[1].P1.Y != 500 {
+		t.Errorf("expected P1 Y clamped to 500, got %f", states[1].P1.Y)
+	}
+	if states[1].P1.Angle != 0 {
+		t.Errorf("expected P1 angle unchanged 0, got %f", states[1].P1.Angle)
+	}
+
+	// P2 should remain stationary throughout
+	finalState := states[len(states)-1]
+	if finalState.P2.X != 50 || finalState.P2.Y != 0 {
+		t.Errorf("expected P2 to stay at (50,0), got (%f,%f)", finalState.P2.X, finalState.P2.Y)
+	}
+}
