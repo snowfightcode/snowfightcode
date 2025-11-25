@@ -8,3 +8,11 @@ height = 1000
 [snowbot]
 min_move = 1
 max_move = 10
+max_snowball = 10          # 所持雪玉の最大数
+max_flying_snowball = 3    # 飛行中の雪玉の最大数
+
+[snowball]
+max_flying_distance = 100
+speed = 10                 # 1ティックあたりの移動距離
+damage_radius = 5
+damage = 10                # HP減少量

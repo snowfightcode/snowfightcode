@@ -112,12 +112,52 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 		return this.Context().NewNull(), nil
 	})
 
+	// toss(angle, distance)
+	rt.ctx.SetFunc("toss", func(this *qjs.This) (*qjs.Value, error) {
+		args := this.Args()
+		if len(args) < 2 {
+			return this.Context().NewNull(), nil
+		}
+
+		// Convert to integers
+		angle := int(args[0].Float64())
+		distance := int(args[1].Float64())
+
+		// Normalize angle to 0-359
+		angle = angle % 360
+		if angle < 0 {
+			angle += 360
+		}
+
+		// Handle negative distance
+		if distance < 0 {
+			distance = 0
+		}
+
+		// No-op if distance is 0
+		if distance == 0 {
+			return this.Context().NewNull(), nil
+		}
+
+		// Clamp distance to max_flying_distance
+		if distance > rt.Config.Snowball.MaxFlyingDistance {
+			distance = rt.Config.Snowball.MaxFlyingDistance
+		}
+
+		rt.currentActions = append(rt.currentActions, game.Action{
+			Type:          game.ActionThrow,
+			ThrowAngle:    angle,
+			ThrowDistance: distance,
+		})
+		return this.Context().NewNull(), nil
+	})
+
 	// Setup console object in JavaScript
-	rt.ctx.Eval(`
+	rt.ctx.Eval("console-setup", qjs.Code(`
 		globalThis.console = {
 			log: console_log
 		};
-	`)
+	`))
 }
 
 // Load loads the JavaScript code into the runtime.

@@ -9,9 +9,10 @@ import (
 
 // Config represents the game configuration.
 type Config struct {
-	Match   MatchConfig   `toml:"match"`
-	Field   FieldConfig   `toml:"field"`
-	Snowbot SnowbotConfig `toml:"snowbot"`
+	Match    MatchConfig    `toml:"match"`
+	Field    FieldConfig    `toml:"field"`
+	Snowbot  SnowbotConfig  `toml:"snowbot"`
+	Snowball SnowballConfig `toml:"snowball"`
 }
 
 // MatchConfig contains match-related settings.
@@ -27,8 +28,18 @@ type FieldConfig struct {
 
 // SnowbotConfig contains snowbot movement constraints.
 type SnowbotConfig struct {
-	MinMove int `toml:"min_move"`
-	MaxMove int `toml:"max_move"`
+	MinMove           int `toml:"min_move"`
+	MaxMove           int `toml:"max_move"`
+	MaxSnowball       int `toml:"max_snowball"`
+	MaxFlyingSnowball int `toml:"max_flying_snowball"`
+}
+
+// SnowballConfig contains snowball flight and damage parameters.
+type SnowballConfig struct {
+	MaxFlyingDistance int `toml:"max_flying_distance"`
+	Speed             int `toml:"speed"`
+	DamageRadius      int `toml:"damage_radius"`
+	Damage            int `toml:"damage"`
 }
 
 // Default returns the default configuration.
@@ -42,8 +53,16 @@ func Default() *Config {
 			Height: 1000,
 		},
 		Snowbot: SnowbotConfig{
-			MinMove: 1,
-			MaxMove: 10,
+			MinMove:           1,
+			MaxMove:           10,
+			MaxSnowball:       10,
+			MaxFlyingSnowball: 3,
+		},
+		Snowball: SnowballConfig{
+			MaxFlyingDistance: 100,
+			Speed:             10,
+			DamageRadius:      5,
+			Damage:            10,
 		},
 	}
 }

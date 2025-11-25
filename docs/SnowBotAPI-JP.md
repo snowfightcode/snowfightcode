@@ -19,3 +19,29 @@
   * 角度基準は北が0度。360超/負は`angle % 360` に正規化する。
   * `angle = 0` は無行動（No-op）。
 
+## 雪玉操作
+
+* `toss(angle: Integer, distance: Integer): void`
+
+  * 指定方向 `angle` と狙う `distance` に雪玉を投げる。
+  * 角度基準は北が0度。360超/負は`angle % 360` に正規化する。
+  * `distance` は命中地点の中心点のターゲット距離。最大値は `<MAX_FLYING_DISTANCE>`。
+  * 飛翔速度は `<SNOWBALL_SPEED>` / tick 、命中半径は `<DAMAGE_RADIUS>`（いずれもフィールド単位）。
+  * 弾道は直進のみで、重力・落下などは考慮しない。
+  * 投擲後の雪玉は**ティックごとに`SNOWBALL_SPEED`で移動**して当たり判定を繰り返す。
+  * 途中にブロックがある場合は遮蔽物として機能し、貫通はしない（その場で消滅）。
+  * 雪玉は境界外で消滅する。自爆判定は行わない。
+  * `distance`が負の場合、0とみなす。
+  * `distance`が0の場合、No-opとする。雪玉は消費しない。
+
+
+## ゲームパラメーター
+
+* `FIELD_SIZE`: フィールドのサイズ
+* `MAX_MOVE`: 1ティックでの移動距離の最大値
+* `MIN_MOVE`: 1ティックでの移動距離の最小値
+* `MAX_FLYING_DISTANCE`: 雪玉の最大飛行距離
+* `SNOWBALL_SPEED`: 雪玉の移動速度
+* `DAMAGE_RADIUS`: 雪玉の命中半径
+* `MAX_SNOWBALL`: 所持雪玉の最大数
+* `MAX_FLYING_SNOWBALL`: 飛行中の雪玉の最大数
