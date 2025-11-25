@@ -118,3 +118,58 @@ func TestScenario01_BasicMove(t *testing.T) {
 		}
 	}
 }
+
+func TestScenario02_AngleTest(t *testing.T) {
+	states := runScenario(t, "testdata/scenarios/02_angle_test")
+
+	// Initial position and angle
+	if states[0].P1.X != -50 || states[0].P1.Y != 0 {
+		t.Errorf("expected P1 initial position (-50, 0), got (%f, %f)", states[0].P1.X, states[0].P1.Y)
+	}
+	if states[0].P1.Angle != 0 {
+		t.Errorf("expected P1 initial angle 0, got %f", states[0].P1.Angle)
+	}
+
+	// After tick 1: Moved north (Y+)
+	if states[1].P1.X != -50 || states[1].P1.Y != 10 {
+		t.Errorf("tick 1: expected P1 at (-50, 10) after moving north, got (%f, %f)", states[1].P1.X, states[1].P1.Y)
+	}
+
+	// After tick 2: Turned to 90° (east)
+	if states[2].P1.Angle != 90 {
+		t.Errorf("tick 2: expected P1 angle 90 (east), got %f", states[2].P1.Angle)
+	}
+
+	// After tick 3: Moved east (X+)
+	if states[3].P1.X != -40 || states[3].P1.Y != 10 {
+		t.Errorf("tick 3: expected P1 at (-40, 10) after moving east, got (%f, %f)", states[3].P1.X, states[3].P1.Y)
+	}
+
+	// After tick 4: Turned to 180° (south)
+	if states[4].P1.Angle != 180 {
+		t.Errorf("tick 4: expected P1 angle 180 (south), got %f", states[4].P1.Angle)
+	}
+
+	// After tick 5: Moved south (Y-)
+	if states[5].P1.X != -40 || states[5].P1.Y != 0 {
+		t.Errorf("tick 5: expected P1 at (-40, 0) after moving south, got (%f, %f)", states[5].P1.X, states[5].P1.Y)
+	}
+
+	// After tick 6: Turned to 270° (west)
+	if states[6].P1.Angle != 270 {
+		t.Errorf("tick 6: expected P1 angle 270 (west), got %f", states[6].P1.Angle)
+	}
+
+	// After tick 7: Moved west (X-) - back to original position
+	if states[7].P1.X != -50 || states[7].P1.Y != 0 {
+		t.Errorf("tick 7: expected P1 back at (-50, 0) after moving west, got (%f, %f)", states[7].P1.X, states[7].P1.Y)
+	}
+
+	// P2 should remain stationary
+	finalState := states[len(states)-1]
+	if finalState.P2.X != 50 || finalState.P2.Y != 0 {
+		t.Errorf("expected P2 to stay at (50, 0), got (%f, %f)", finalState.P2.X, finalState.P2.Y)
+	}
+
+	t.Logf("✅ Angle mapping verified: 0°=north, 90°=east, 180°=south, 270°=west")
+}
