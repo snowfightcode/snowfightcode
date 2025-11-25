@@ -35,8 +35,19 @@
   * `distance`が0の場合、No-opとする。雪玉は消費しない。
 
 
+## プログラム実行制約
+
+* メモリ最大値:`<MAX_MEMORY_BYTES>`
+* スタック最大値:`<MAX_STACK_BYTES>`
+* 1ティックは `<TICK_TIMEOUT>` ミリ秒で終了する。
+* 違反時はリソースエラーとして該当のSnowBotの実行を中止する。
+
+
 ## ゲームパラメーター
 
+* `MAX_MEMORY_BYTES`: メモリ最大値
+* `MAX_STACK_BYTES`: スタック最大値
+* `TICK_TIMEOUT`: 1ティックの最大時間
 * `FIELD_SIZE`: フィールドのサイズ
 * `MAX_MOVE`: 1ティックでの移動距離の最大値
 * `MIN_MOVE`: 1ティックでの移動距離の最小値

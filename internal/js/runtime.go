@@ -26,7 +26,12 @@ type QuickJSRuntime struct {
 
 // NewQuickJSRuntime creates a new QuickJSRuntime instance.
 func NewQuickJSRuntime(cfg *config.Config) *QuickJSRuntime {
-	rt, err := qjs.New()
+	// Configure resource limits
+	rt, err := qjs.New(qjs.Option{
+		MaxStackSize:     cfg.Runtime.MaxStackBytes,
+		MemoryLimit:      cfg.Runtime.MaxMemoryBytes,
+		MaxExecutionTime: cfg.Runtime.TickTimeoutMs,
+	})
 	if err != nil {
 		panic(fmt.Sprintf("failed to create QuickJS runtime: %v", err))
 	}

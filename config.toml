@@ -16,3 +16,8 @@ max_flying_distance = 100
 speed = 10                 # 1ティックあたりの移動距離
 damage_radius = 5
 damage = 10                # HP減少量
+
+[runtime]
+max_memory_bytes = 10485760    # 10MB
+max_stack_bytes = 1048576      # 1MB
+tick_timeout_ms = 100          # 100ミリ秒

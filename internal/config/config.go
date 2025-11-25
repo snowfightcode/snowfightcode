@@ -13,6 +13,7 @@ type Config struct {
 	Field    FieldConfig    `toml:"field"`
 	Snowbot  SnowbotConfig  `toml:"snowbot"`
 	Snowball SnowballConfig `toml:"snowball"`
+	Runtime  RuntimeConfig  `toml:"runtime"`
 }
 
 // MatchConfig contains match-related settings.
@@ -42,6 +43,13 @@ type SnowballConfig struct {
 	Damage            int `toml:"damage"`
 }
 
+// RuntimeConfig contains JavaScript runtime resource constraints.
+type RuntimeConfig struct {
+	MaxMemoryBytes int `toml:"max_memory_bytes"`
+	MaxStackBytes  int `toml:"max_stack_bytes"`
+	TickTimeoutMs  int `toml:"tick_timeout_ms"`
+}
+
 // Default returns the default configuration.
 func Default() *Config {
 	return &Config{
@@ -63,6 +71,11 @@ func Default() *Config {
 			Speed:             10,
 			DamageRadius:      5,
 			Damage:            10,
+		},
+		Runtime: RuntimeConfig{
+			MaxMemoryBytes: 10485760, // 10MB
+			MaxStackBytes:  1048576,  // 1MB
+			TickTimeoutMs:  100,      // 100ms
 		},
 	}
 }
