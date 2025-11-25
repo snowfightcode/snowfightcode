@@ -46,8 +46,13 @@ func (e *Engine) applyAction(p *Player, action Action) {
 	case ActionMove:
 		// Convert angle to radians
 		rad := p.Angle * math.Pi / 180.0
-		p.X += math.Cos(rad) * action.Value
-		p.Y += math.Sin(rad) * action.Value
+		newX := p.X + math.Cos(rad)*action.Value
+		newY := p.Y + math.Sin(rad)*action.Value
+
+		// Clamp to field boundaries
+		p.X = math.Max(-FieldWidth/2, math.Min(FieldWidth/2, newX))
+		p.Y = math.Max(-FieldHeight/2, math.Min(FieldHeight/2, newY))
+
 		// Round coordinates to integers
 		p.X = math.Round(p.X)
 		p.Y = math.Round(p.Y)

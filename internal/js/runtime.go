@@ -47,10 +47,32 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 	rt.ctx.SetFunc("move", func(this *qjs.This) (*qjs.Value, error) {
 		args := this.Args()
 		if len(args) > 0 {
-			val := args[0].Float64()
+			// Round to integer
+			distance := int(args[0].Float64())
+
+			// No-op if distance is 0
+			if distance == 0 {
+				return this.Context().NewNull(), nil
+			}
+
+			// Clamp to MIN_MOVE <= |distance| <= MAX_MOVE
+			if distance > 0 {
+				if distance < game.MinMove {
+					distance = game.MinMove
+				} else if distance > game.MaxMove {
+					distance = game.MaxMove
+				}
+			} else {
+				if distance > -game.MinMove {
+					distance = -game.MinMove
+				} else if distance < -game.MaxMove {
+					distance = -game.MaxMove
+				}
+			}
+
 			rt.currentActions = append(rt.currentActions, game.Action{
 				Type:  game.ActionMove,
-				Value: val,
+				Value: float64(distance),
 			})
 		}
 		return this.Context().NewNull(), nil
@@ -60,10 +82,17 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 	rt.ctx.SetFunc("turn", func(this *qjs.This) (*qjs.Value, error) {
 		args := this.Args()
 		if len(args) > 0 {
-			val := args[0].Float64()
+			// Round to integer
+			angle := int(args[0].Float64())
+
+			// No-op if angle is 0
+			if angle == 0 {
+				return this.Context().NewNull(), nil
+			}
+
 			rt.currentActions = append(rt.currentActions, game.Action{
 				Type:  game.ActionTurn,
-				Value: val,
+				Value: float64(angle),
 			})
 		}
 		return this.Context().NewNull(), nil
