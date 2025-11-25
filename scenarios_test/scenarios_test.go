@@ -1,0 +1,120 @@
+package scenarios_test
+
+import (
+	"encoding/json"
+	"os"
+	"path/filepath"
+	"snowfight/internal/config"
+	"snowfight/internal/game"
+	"snowfight/internal/js"
+	"testing"
+)
+
+// runScenario executes a test scenario and returns all game states
+func runScenario(t *testing.T, scenarioDir string) []game.GameState {
+	t.Helper()
+
+	// Load config
+	configPath := filepath.Join(scenarioDir, "config.toml")
+	cfg, err := config.Load(configPath)
+	if err != nil {
+		t.Fatalf("failed to load config: %v", err)
+	}
+
+	// Load player scripts
+	p1Code, err := os.ReadFile(filepath.Join(scenarioDir, "p1.js"))
+	if err != nil {
+		t.Fatalf("failed to read p1.js: %v", err)
+	}
+
+	p2Code, err := os.ReadFile(filepath.Join(scenarioDir, "p2.js"))
+	if err != nil {
+		t.Fatalf("failed to read p2.js: %v", err)
+	}
+
+	// Create runtimes
+	rt1 := js.NewQuickJSRuntime(cfg)
+	defer rt1.Close()
+	if err := rt1.Load(string(p1Code)); err != nil {
+		t.Fatalf("failed to load p1.js: %v", err)
+	}
+
+	rt2 := js.NewQuickJSRuntime(cfg)
+	defer rt2.Close()
+	if err := rt2.Load(string(p2Code)); err != nil {
+		t.Fatalf("failed to load p2.js: %v", err)
+	}
+
+	// Create game engine
+	engine := game.NewGame(cfg)
+
+	// Run game and collect states
+	states := []game.GameState{engine.State}
+
+	for i := 0; i < cfg.Match.MaxTicks; i++ {
+		actions1, err := rt1.Run(engine.State)
+		if err != nil {
+			t.Fatalf("error running p1 at tick %d: %v", i, err)
+		}
+
+		actions2, err := rt2.Run(engine.State)
+		if err != nil {
+			t.Fatalf("error running p2 at tick %d: %v", i, err)
+		}
+
+		engine.Update(actions1, actions2)
+		states = append(states, engine.State)
+	}
+
+	return states
+}
+
+// saveStatesAsJSON saves game states to a JSON file (for debugging)
+func saveStatesAsJSON(t *testing.T, states []game.GameState, filename string) {
+	t.Helper()
+
+	file, err := os.Create(filename)
+	if err != nil {
+		t.Fatalf("failed to create file: %v", err)
+	}
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "  ")
+	if err := encoder.Encode(states); err != nil {
+		t.Fatalf("failed to encode states: %v", err)
+	}
+}
+
+func TestScenario01_BasicMove(t *testing.T) {
+	states := runScenario(t, "testdata/scenarios/01_basic_move")
+
+	// Initial state
+	if states[0].P1.X != -50 || states[0].P1.Y != 0 {
+		t.Errorf("expected P1 initial position (-50, 0), got (%f, %f)", states[0].P1.X, states[0].P1.Y)
+	}
+
+	// After 10 ticks, P1 should have moved north by 50 (5 per tick * 10)
+	finalState := states[len(states)-1]
+
+	if finalState.P1.X != -50 {
+		t.Errorf("expected P1 final X=-50 (no horizontal movement), got %f", finalState.P1.X)
+	}
+
+	if finalState.P1.Y != 50 {
+		t.Errorf("expected P1 final Y=50 (moved north), got %f", finalState.P1.Y)
+	}
+
+	// P2 should not move
+	if finalState.P2.X != 50 || finalState.P2.Y != 0 {
+		t.Errorf("expected P2 to stay at (50, 0), got (%f, %f)", finalState.P2.X, finalState.P2.Y)
+	}
+
+	// Verify P1 moved consistently each tick
+	for i := 1; i < len(states); i++ {
+		expectedY := float64(i * 5)
+		if states[i].P1.Y != expectedY {
+			t.Errorf("tick %d: expected P1 Y=%f, got %f", i, expectedY, states[i].P1.Y)
+		}
+	}
+}
