@@ -3,6 +3,7 @@ package js
 import (
 	"encoding/json"
 	"fmt"
+	"snowfight/internal/config"
 	"snowfight/internal/game"
 
 	"github.com/fastschema/qjs"
@@ -20,10 +21,11 @@ type QuickJSRuntime struct {
 	rt             *qjs.Runtime
 	ctx            *qjs.Context
 	currentActions []game.Action
+	Config         *config.Config
 }
 
 // NewQuickJSRuntime creates a new QuickJSRuntime instance.
-func NewQuickJSRuntime() *QuickJSRuntime {
+func NewQuickJSRuntime(cfg *config.Config) *QuickJSRuntime {
 	rt, err := qjs.New()
 	if err != nil {
 		panic(fmt.Sprintf("failed to create QuickJS runtime: %v", err))
@@ -31,8 +33,9 @@ func NewQuickJSRuntime() *QuickJSRuntime {
 	ctx := rt.Context()
 
 	qjsRt := &QuickJSRuntime{
-		rt:  rt,
-		ctx: ctx,
+		rt:     rt,
+		ctx:    ctx,
+		Config: cfg,
 	}
 	qjsRt.registerBuiltins()
 	return qjsRt
@@ -57,16 +60,16 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 
 			// Clamp to MIN_MOVE <= |distance| <= MAX_MOVE
 			if distance > 0 {
-				if distance < game.MinMove {
-					distance = game.MinMove
-				} else if distance > game.MaxMove {
-					distance = game.MaxMove
+				if distance < rt.Config.Snowbot.MinMove {
+					distance = rt.Config.Snowbot.MinMove
+				} else if distance > rt.Config.Snowbot.MaxMove {
+					distance = rt.Config.Snowbot.MaxMove
 				}
 			} else {
-				if distance > -game.MinMove {
-					distance = -game.MinMove
-				} else if distance < -game.MaxMove {
-					distance = -game.MaxMove
+				if distance > -rt.Config.Snowbot.MinMove {
+					distance = -rt.Config.Snowbot.MinMove
+				} else if distance < -rt.Config.Snowbot.MaxMove {
+					distance = -rt.Config.Snowbot.MaxMove
 				}
 			}
 

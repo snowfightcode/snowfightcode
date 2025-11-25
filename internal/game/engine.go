@@ -2,16 +2,19 @@ package game
 
 import (
 	"math"
+	"snowfight/internal/config"
 )
 
 // Engine handles the game logic and state updates.
 type Engine struct {
-	State GameState
+	State  GameState
+	Config *config.Config
 }
 
 // NewGame creates a new game engine with initial state.
-func NewGame() *Engine {
+func NewGame(cfg *config.Config) *Engine {
 	return &Engine{
+		Config: cfg,
 		State: GameState{
 			Tick: 0,
 			P1: Player{
@@ -50,8 +53,10 @@ func (e *Engine) applyAction(p *Player, action Action) {
 		newY := p.Y + math.Sin(rad)*action.Value
 
 		// Clamp to field boundaries
-		p.X = math.Max(-FieldWidth/2, math.Min(FieldWidth/2, newX))
-		p.Y = math.Max(-FieldHeight/2, math.Min(FieldHeight/2, newY))
+		halfWidth := float64(e.Config.Field.Width) / 2
+		halfHeight := float64(e.Config.Field.Height) / 2
+		p.X = math.Max(-halfWidth, math.Min(halfWidth, newX))
+		p.Y = math.Max(-halfHeight, math.Min(halfHeight, newY))
 
 		// Round coordinates to integers
 		p.X = math.Round(p.X)

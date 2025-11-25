@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"snowfight/internal/config"
 	"snowfight/internal/game"
 	"snowfight/internal/js"
 )
@@ -11,6 +12,12 @@ import (
 func runMatch(args []string) error {
 	if len(args) != 2 {
 		return fmt.Errorf("usage: snowfight match <js-file-1> <js-file-2>")
+	}
+
+	// Load configuration
+	cfg, err := config.Load("config.toml")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: %v\n", err)
 	}
 
 	file1 := args[0]
@@ -26,22 +33,22 @@ func runMatch(args []string) error {
 		return fmt.Errorf("failed to read %s: %w", file2, err)
 	}
 
-	rt1 := js.NewQuickJSRuntime()
+	rt1 := js.NewQuickJSRuntime(cfg)
 	defer rt1.Close()
 	if err := rt1.Load(string(code1)); err != nil {
 		return fmt.Errorf("failed to load %s: %w", file1, err)
 	}
 
-	rt2 := js.NewQuickJSRuntime()
+	rt2 := js.NewQuickJSRuntime(cfg)
 	defer rt2.Close()
 	if err := rt2.Load(string(code2)); err != nil {
 		return fmt.Errorf("failed to load %s: %w", file2, err)
 	}
 
-	engine := game.NewGame()
+	engine := game.NewGame(cfg)
 
-	// Run for 1000 ticks
-	for i := 0; i < 1000; i++ {
+	// Run for max_ticks from config
+	for i := 0; i < cfg.Match.MaxTicks; i++ {
 		// Get actions
 		// We pass the full state to both.
 		// In a real game, we might want to mask info or provide relative coordinates.

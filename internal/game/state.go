@@ -1,13 +1,5 @@
 package game
 
-// Game constants
-const (
-	MinMove     = 1    // Minimum movement distance per tick
-	MaxMove     = 10   // Maximum movement distance per tick
-	FieldWidth  = 1000 // Field width in pixels
-	FieldHeight = 1000 // Field height in pixels
-)
-
 // Player represents the state of a single player.
 type Player struct {
 	X     float64 `json:"x"`
