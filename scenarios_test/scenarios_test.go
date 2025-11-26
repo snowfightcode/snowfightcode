@@ -201,3 +201,15 @@ func TestScenario03_Boundary(t *testing.T) {
 		t.Errorf("expected P2 to stay at (50,0), got (%f,%f)", finalState.P2.X, finalState.P2.Y)
 	}
 }
+
+func TestScenario04_SnowballHit(t *testing.T) {
+	states := runScenario(t, "testdata/scenarios/04_snowball_hit")
+
+	// Verify P2 took damage (10) -> HP 90
+	finalState := states[len(states)-1]
+	if finalState.P2.HP != 90 {
+		t.Errorf("expected P2 HP 90 after snowball hit, got %d", finalState.P2.HP)
+	}
+
+	t.Logf("✅ Snowball hit verified: P2 took 10 damage")
+}
