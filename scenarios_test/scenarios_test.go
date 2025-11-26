@@ -235,3 +235,28 @@ func TestScenario05_FlyingLimit(t *testing.T) {
 
 	t.Logf("✅ Flying limit verified: max %d snowballs in flight", maxFlying)
 }
+
+func TestScenario06_InventoryLimit(t *testing.T) {
+	states := runScenario(t, "testdata/scenarios/06_inventory_limit")
+
+	// Initial inventory should be 10
+	if states[0].P1.SnowballCount != 10 {
+		t.Errorf("expected P1 initial inventory 10, got %d", states[0].P1.SnowballCount)
+	}
+
+	// After throwing all snowballs, inventory should be 0
+	finalState := states[len(states)-1]
+	if finalState.P1.SnowballCount != 0 {
+		t.Errorf("expected P1 final inventory 0, got %d", finalState.P1.SnowballCount)
+	}
+
+	// Verify inventory decreases correctly
+	for i := 1; i < len(states) && i <= 10; i++ {
+		expected := 10 - i
+		if states[i].P1.SnowballCount != expected {
+			t.Errorf("tick %d: expected P1 inventory %d, got %d", i, expected, states[i].P1.SnowballCount)
+		}
+	}
+
+	t.Logf("✅ Inventory limit verified: P1 used all 10 snowballs")
+}
