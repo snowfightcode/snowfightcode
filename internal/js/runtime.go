@@ -162,6 +162,22 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 		globalThis.console = {
 			log: console_log
 		};
+
+		// Helper to deep freeze objects
+		globalThis.__deepFreeze = function(obj) {
+			// Retrieve the property names defined on object
+			const propNames = Object.getOwnPropertyNames(obj);
+
+			// Freeze properties before freezing self
+			for (const name of propNames) {
+				const value = obj[name];
+				if (value && typeof value === "object") {
+					__deepFreeze(value);
+				}
+			}
+
+			return Object.freeze(obj);
+		};
 	`))
 }
 
@@ -186,6 +202,7 @@ func (rt *QuickJSRuntime) Run(state game.GameState) ([]game.Action, error) {
 	// Set state json to a global variable and execute run
 	script := fmt.Sprintf(`
 		globalThis.__state_json = %s;
+		__deepFreeze(__state_json);
 		run(__state_json);
 	`, jsonStr)
 
