@@ -213,3 +213,25 @@ func TestScenario04_SnowballHit(t *testing.T) {
 
 	t.Logf("✅ Snowball hit verified: P2 took 10 damage")
 }
+
+func TestScenario05_FlyingLimit(t *testing.T) {
+	states := runScenario(t, "testdata/scenarios/05_flying_limit")
+
+	// Verify that at no point do we have more than 3 flying snowballs
+	maxFlying := 0
+	for i, state := range states {
+		flyingCount := len(state.Snowballs)
+		if flyingCount > maxFlying {
+			maxFlying = flyingCount
+		}
+		if flyingCount > 3 {
+			t.Errorf("tick %d: found %d flying snowballs, expected max 3", i, flyingCount)
+		}
+	}
+
+	if maxFlying != 3 {
+		t.Errorf("expected max flying snowballs to reach 3, got %d", maxFlying)
+	}
+
+	t.Logf("✅ Flying limit verified: max %d snowballs in flight", maxFlying)
+}
