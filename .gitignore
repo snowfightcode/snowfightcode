@@ -11,3 +11,7 @@ vendor
 # Temporary
 tmp
 .memo
+
+# Generated
+dist/
+*.jsonl
