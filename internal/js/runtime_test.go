@@ -156,7 +156,7 @@ func TestToss_API(t *testing.T) {
 	rt := NewQuickJSRuntime(cfg)
 	defer rt.Close()
 
-	code := `function run(state) { toss(90, 50); }`
+	code := `function run(state) { toss(50); }`
 	if err := rt.Load(code); err != nil {
 		t.Fatal(err)
 	}
@@ -173,9 +173,7 @@ func TestToss_API(t *testing.T) {
 	if actions[0].Type != game.ActionThrow {
 		t.Errorf("expected ActionThrow, got %v", actions[0].Type)
 	}
-	if actions[0].ThrowAngle != 90 {
-		t.Errorf("expected angle=90, got %d", actions[0].ThrowAngle)
-	}
+
 	if actions[0].ThrowDistance != 50 {
 		t.Errorf("expected distance=50, got %d", actions[0].ThrowDistance)
 	}
@@ -186,7 +184,7 @@ func TestToss_NoOp(t *testing.T) {
 	rt := NewQuickJSRuntime(cfg)
 	defer rt.Close()
 
-	code := `function run(state) { toss(90, 0); }`
+	code := `function run(state) { toss(0); }`
 	if err := rt.Load(code); err != nil {
 		t.Fatal(err)
 	}
@@ -207,7 +205,7 @@ func TestToss_DistanceClamping(t *testing.T) {
 	rt := NewQuickJSRuntime(cfg)
 	defer rt.Close()
 
-	code := `function run(state) { toss(0, 200); }`
+	code := `function run(state) { toss(200); }`
 	if err := rt.Load(code); err != nil {
 		t.Fatal(err)
 	}
@@ -252,7 +250,7 @@ func TestActionAccumulation(t *testing.T) {
 	function run(state) {
 		move(5);
 		turn(90);
-		toss(0, 50);
+		toss(50);
 	}
 	`
 	if err := rt.Load(code); err != nil {

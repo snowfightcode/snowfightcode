@@ -43,6 +43,5 @@ const (
 type Action struct {
 	Type          ActionType
 	Value         float64 // Distance for move, Degrees for turn
-	ThrowAngle    int     // Throw: angle in degrees
 	ThrowDistance int     // Throw: target distance
 }

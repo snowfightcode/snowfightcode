@@ -21,10 +21,9 @@
 
 ## 雪玉操作
 
-* `toss(angle: Integer, distance: Integer): void`
+* `toss(distance: Integer): void`
 
-  * 指定方向 `angle` と狙う `distance` に雪玉を投げる。
-  * 角度基準は北が0度。360超/負は`angle % 360` に正規化する。
+  * 現在の向いている方向（`angle`）に、狙う `distance` で雪玉を投げる。
   * `distance` は命中地点の中心点のターゲット距離。最大値は `<MAX_FLYING_DISTANCE>`。
   * 飛翔速度は `<SNOWBALL_SPEED>` / tick 、命中半径は `<DAMAGE_RADIUS>`（いずれもフィールド単位）。
   * 弾道は直進のみで、重力・落下などは考慮しない。

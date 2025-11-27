@@ -94,7 +94,7 @@ func (e *Engine) applyAction(p *Player, playerID int, action Action) {
 
 		// Create snowball
 		// 0° = north (Y+), 90° = east (X+)
-		angle := float64(action.ThrowAngle)
+		angle := p.Angle
 		rad := angle * math.Pi / 180.0
 		speed := float64(e.Config.Snowball.Speed)
 

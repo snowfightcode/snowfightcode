@@ -117,22 +117,15 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 		return this.Context().NewNull(), nil
 	})
 
-	// toss(angle, distance)
+	// toss(distance)
 	rt.ctx.SetFunc("toss", func(this *qjs.This) (*qjs.Value, error) {
 		args := this.Args()
-		if len(args) < 2 {
+		if len(args) < 1 {
 			return this.Context().NewNull(), nil
 		}
 
 		// Convert to integers
-		angle := int(args[0].Float64())
-		distance := int(args[1].Float64())
-
-		// Normalize angle to 0-359
-		angle = angle % 360
-		if angle < 0 {
-			angle += 360
-		}
+		distance := int(args[0].Float64())
 
 		// Handle negative distance
 		if distance < 0 {
@@ -151,7 +144,6 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 
 		rt.currentActions = append(rt.currentActions, game.Action{
 			Type:          game.ActionThrow,
-			ThrowAngle:    angle,
 			ThrowDistance: distance,
 		})
 		return this.Context().NewNull(), nil
