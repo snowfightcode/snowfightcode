@@ -170,8 +170,8 @@ func TestToss_API(t *testing.T) {
 		t.Fatalf("expected 1 action, got %d", len(actions))
 	}
 
-	if actions[0].Type != game.ActionThrow {
-		t.Errorf("expected ActionThrow, got %v", actions[0].Type)
+	if actions[0].Type != game.ActionToss {
+		t.Errorf("expected ActionToss, got %v", actions[0].Type)
 	}
 
 	if actions[0].ThrowDistance != 50 {
@@ -272,7 +272,7 @@ func TestActionAccumulation(t *testing.T) {
 	if actions[1].Type != game.ActionTurn {
 		t.Errorf("expected second action to be Turn, got %v", actions[1].Type)
 	}
-	if actions[2].Type != game.ActionThrow {
+	if actions[2].Type != game.ActionToss {
 		t.Errorf("expected third action to be Throw, got %v", actions[2].Type)
 	}
 }

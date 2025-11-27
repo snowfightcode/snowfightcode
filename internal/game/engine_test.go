@@ -111,7 +111,7 @@ func TestThrow_Basic(t *testing.T) {
 	initialCount := engine.State.P1.SnowballCount
 
 	// P1 throws snowball
-	actions := []Action{{Type: ActionThrow, ThrowDistance: 50}}
+	actions := []Action{{Type: ActionToss, ThrowDistance: 50}}
 	engine.Update(actions, []Action{})
 
 	if len(engine.State.Snowballs) != 1 {
@@ -140,7 +140,7 @@ func TestThrow_InventoryLimit(t *testing.T) {
 	engine.State.P1.SnowballCount = 0
 
 	// Try to throw (should not create snowball)
-	actions := []Action{{Type: ActionThrow, ThrowDistance: 50}}
+	actions := []Action{{Type: ActionToss, ThrowDistance: 50}}
 	engine.Update(actions, []Action{})
 
 	if len(engine.State.Snowballs) != 0 {
@@ -163,7 +163,7 @@ func TestThrow_FlyingLimit(t *testing.T) {
 	initialCount := engine.State.P1.SnowballCount
 
 	// Try to throw a 3rd snowball (should not create)
-	actions := []Action{{Type: ActionThrow, ThrowDistance: 50}}
+	actions := []Action{{Type: ActionToss, ThrowDistance: 50}}
 	engine.Update(actions, []Action{})
 
 	if len(engine.State.Snowballs) != 2 {

@@ -75,7 +75,7 @@ func (e *Engine) applyAction(p *Player, playerID int, action Action) {
 		if p.Angle < 0 {
 			p.Angle += 360
 		}
-	case ActionThrow:
+	case ActionToss:
 		// Check snowball inventory
 		if p.SnowballCount <= 0 {
 			return

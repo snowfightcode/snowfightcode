@@ -143,7 +143,7 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 		}
 
 		rt.currentActions = append(rt.currentActions, game.Action{
-			Type:          game.ActionThrow,
+			Type:          game.ActionToss,
 			ThrowDistance: distance,
 		})
 		return this.Context().NewNull(), nil

@@ -36,7 +36,7 @@ const (
 	ActionNone ActionType = iota
 	ActionMove
 	ActionTurn
-	ActionThrow
+	ActionToss
 )
 
 // Action represents an action returned by a player's script.
