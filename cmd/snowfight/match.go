@@ -78,6 +78,11 @@ func runMatch(args []string) error {
 			return fmt.Errorf("json marshal error: %w", err)
 		}
 		fmt.Println(string(bytes))
+
+		// Check win condition
+		if engine.IsGameOver() {
+			break
+		}
 	}
 
 	return nil

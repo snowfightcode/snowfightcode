@@ -64,6 +64,10 @@ func runScenario(t *testing.T, scenarioDir string) []game.GameState {
 
 		engine.Update(actions1, actions2)
 		states = append(states, engine.State)
+
+		if engine.IsGameOver() {
+			break
+		}
 	}
 
 	return states
@@ -259,4 +263,28 @@ func TestScenario06_InventoryLimit(t *testing.T) {
 	}
 
 	t.Logf("✅ Inventory limit verified: P1 used all 10 snowballs")
+}
+
+func TestScenario07_GameOver(t *testing.T) {
+	states := runScenario(t, "testdata/scenarios/07_game_over")
+
+	// P2 starts with 20 HP, takes 10 damage per hit.
+	// P1 throws every 10 ticks.
+	// Hit 1: ~tick 10-15 -> HP 10
+	// Hit 2: ~tick 20-25 -> HP 0 -> Game Over
+
+	finalState := states[len(states)-1]
+
+	// Verify P2 is dead
+	if finalState.P2.HP != 0 {
+		t.Errorf("expected P2 HP 0, got %d", finalState.P2.HP)
+	}
+
+	// Verify game ended early (max_ticks is 100)
+	// It should take roughly 20-30 ticks.
+	if len(states) >= 100 {
+		t.Errorf("expected game to end early (HP=0), but ran for %d ticks", len(states))
+	}
+
+	t.Logf("✅ Game over verified: ended at tick %d with P2 HP %d", len(states), finalState.P2.HP)
 }

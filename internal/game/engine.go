@@ -170,3 +170,8 @@ func (e *Engine) checkSnowballDamage(sb *Snowball, damageRadius float64) {
 		}
 	}
 }
+
+// IsGameOver returns true if the game should end (e.g. one player has 0 HP).
+func (e *Engine) IsGameOver() bool {
+	return e.State.P1.HP <= 0 || e.State.P2.HP <= 0
+}
