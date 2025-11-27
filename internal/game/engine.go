@@ -23,14 +23,14 @@ func NewGame(cfg *config.Config) *Engine {
 			P1: Player{
 				X:             -50,
 				Y:             0,
-				HP:            100,
+				HP:            cfg.Snowbot.MaxHP,
 				Angle:         0,
 				SnowballCount: cfg.Snowbot.MaxSnowball,
 			},
 			P2: Player{
 				X:             50,
 				Y:             0,
-				HP:            100,
+				HP:            cfg.Snowbot.MaxHP,
 				Angle:         180,
 				SnowballCount: cfg.Snowbot.MaxSnowball,
 			},

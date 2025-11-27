@@ -1,23 +1,24 @@
 [match]
-max_ticks = 1000
+max_ticks = 1000           # Maximum duration of the match in ticks
 
 [field]
-width = 1000
-height = 1000
+width = 1000               # Width of the game field
+height = 1000              # Height of the game field
 
 [snowbot]
-min_move = 1
-max_move = 10
-max_snowball = 10          # 所持雪玉の最大数
-max_flying_snowball = 3    # 飛行中の雪玉の最大数
+min_move = 1               # Minimum movement distance per tick
+max_move = 10              # Maximum movement distance per tick
+max_hp = 100               # Maximum HP of a SnowBot
+max_snowball = 10          # Maximum number of snowballs a SnowBot can hold
+max_flying_snowball = 3    # Maximum number of snowballs a SnowBot can have in the air
 
 [snowball]
-max_flying_distance = 100
-speed = 10                 # 1ティックあたりの移動距離
-damage_radius = 5
-damage = 10                # HP減少量
+max_flying_distance = 100  # Maximum distance a snowball can travel
+speed = 10                 # Distance a snowball travels per tick
+damage_radius = 5          # Radius within which a snowball causes damage
+damage = 10                # Amount of HP damage a snowball causes
 
 [runtime]
-max_memory_bytes = 10485760    # 10MB
-max_stack_bytes = 1048576      # 1MB
-tick_timeout_ms = 100          # 100ミリ秒
+max_memory_bytes = 10485760    # Maximum memory allowed for bot script (10MB)
+max_stack_bytes = 1048576      # Maximum stack size allowed for bot script (1MB)
+tick_timeout_ms = 100          # Execution time limit per tick in milliseconds

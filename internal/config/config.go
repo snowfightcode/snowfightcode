@@ -31,6 +31,7 @@ type FieldConfig struct {
 type SnowbotConfig struct {
 	MinMove           int `toml:"min_move"`
 	MaxMove           int `toml:"max_move"`
+	MaxHP             int `toml:"max_hp"`
 	MaxSnowball       int `toml:"max_snowball"`
 	MaxFlyingSnowball int `toml:"max_flying_snowball"`
 }
@@ -63,6 +64,7 @@ func Default() *Config {
 		Snowbot: SnowbotConfig{
 			MinMove:           1,
 			MaxMove:           10,
+			MaxHP:             100,
 			MaxSnowball:       10,
 			MaxFlyingSnowball: 3,
 		},
