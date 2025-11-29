@@ -22,7 +22,7 @@ type QuickJSRuntime struct {
 	ctx            *qjs.Context
 	currentActions []game.Action
 	currentState   *game.GameState
-	playerID       int // 1 for P1, 2 for P2
+	playerID       int // 1-based player ID
 	Config         *config.Config
 
 	// per-tick guards to prevent multiple calls of the same API
@@ -210,11 +210,9 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 			return this.Context().NewNull(), nil
 		}
 
-		var player *game.Player
-		if rt.playerID == 1 {
-			player = &rt.currentState.P1
-		} else {
-			player = &rt.currentState.P2
+		player := rt.currentState.PlayerRef(rt.playerID)
+		if player == nil {
+			return this.Context().NewNull(), nil
 		}
 
 		posJSON := fmt.Sprintf(`({"x": %f, "y": %f})`, player.X, player.Y)
@@ -229,11 +227,10 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 			return val, nil
 		}
 
-		var player *game.Player
-		if rt.playerID == 1 {
-			player = &rt.currentState.P1
-		} else {
-			player = &rt.currentState.P2
+		player := rt.currentState.PlayerRef(rt.playerID)
+		if player == nil {
+			val, _ := this.Context().Eval("zero", qjs.Code("0"))
+			return val, nil
 		}
 
 		val, _ := this.Context().Eval("direction-result", qjs.Code(fmt.Sprintf("%d", int(player.Angle))))
@@ -247,11 +244,10 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 			return val, nil
 		}
 
-		var player *game.Player
-		if rt.playerID == 1 {
-			player = &rt.currentState.P1
-		} else {
-			player = &rt.currentState.P2
+		player := rt.currentState.PlayerRef(rt.playerID)
+		if player == nil {
+			val, _ := this.Context().Eval("zero", qjs.Code("0"))
+			return val, nil
 		}
 
 		val, _ := this.Context().Eval("hp-result", qjs.Code(fmt.Sprintf("%d", player.HP)))
@@ -271,11 +267,10 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 			return val, nil
 		}
 
-		var player *game.Player
-		if rt.playerID == 1 {
-			player = &rt.currentState.P1
-		} else {
-			player = &rt.currentState.P2
+		player := rt.currentState.PlayerRef(rt.playerID)
+		if player == nil {
+			val, _ := this.Context().Eval("zero", qjs.Code("0"))
+			return val, nil
 		}
 
 		val, _ := this.Context().Eval("snowball-count-result", qjs.Code(fmt.Sprintf("%d", player.SnowballCount)))
@@ -327,6 +322,18 @@ func (rt *QuickJSRuntime) Run(state game.GameState) ([]game.Action, error) {
 	rt.tossUsed = false
 	// Store current state for API functions to access
 	rt.currentState = &state
+
+	// Ensure Players slice is populated for scripts even if legacy fields were set.
+	if len(rt.currentState.Players) == 0 {
+		legacy := []game.Player{}
+		if rt.currentState.P1 != (game.Player{}) {
+			legacy = append(legacy, rt.currentState.P1)
+		}
+		if rt.currentState.P2 != (game.Player{}) {
+			legacy = append(legacy, rt.currentState.P2)
+		}
+		rt.currentState.Players = legacy
+	}
 
 	stateBytes, err := json.Marshal(state)
 	if err != nil {

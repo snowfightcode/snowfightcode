@@ -2,7 +2,9 @@ package game
 
 import (
 	"math"
+	"math/rand"
 	"snowfight/internal/config"
+	"time"
 )
 
 // Engine handles the game logic and state updates.
@@ -12,76 +14,94 @@ type Engine struct {
 	nextSnowballID int
 }
 
-// NewGame creates a new game engine with initial state.
-func NewGame(cfg *config.Config) *Engine {
-	return &Engine{
+// NewGame creates a new game engine with initial state for n players (1-based IDs).
+// Players are spawned at random positions/angles within the field.
+func NewGame(cfg *config.Config, numPlayers int) *Engine {
+	if numPlayers < 1 {
+		numPlayers = 1
+	}
+	if cfg.Match.MaxPlayers > 0 && numPlayers > cfg.Match.MaxPlayers {
+		numPlayers = cfg.Match.MaxPlayers
+	}
+
+	seed := cfg.Match.RandomSeed
+	if seed == 0 {
+		seed = time.Now().UnixNano()
+	}
+	rng := rand.New(rand.NewSource(seed))
+
+	halfWidth := float64(cfg.Field.Width) / 2
+	halfHeight := float64(cfg.Field.Height) / 2
+
+	players := make([]Player, numPlayers)
+	for i := 0; i < numPlayers; i++ {
+		players[i] = Player{
+			X:             rng.Float64()*2*halfWidth - halfWidth,
+			Y:             rng.Float64()*2*halfHeight - halfHeight,
+			HP:            cfg.Snowbot.MaxHP,
+			Angle:         rng.Float64() * 360,
+			SnowballCount: cfg.Snowbot.MaxSnowball,
+		}
+	}
+
+	engine := &Engine{
 		Config:         cfg,
 		nextSnowballID: 1,
 		State: GameState{
 			Tick:      0,
 			Snowballs: []Snowball{},
-			P1: Player{
-				X:             -50,
-				Y:             0,
-				HP:            cfg.Snowbot.MaxHP,
-				Angle:         0,
-				SnowballCount: cfg.Snowbot.MaxSnowball,
-			},
-			P2: Player{
-				X:             50,
-				Y:             0,
-				HP:            cfg.Snowbot.MaxHP,
-				Angle:         180,
-				SnowballCount: cfg.Snowbot.MaxSnowball,
-			},
+			Players:   players,
 		},
 	}
+	engine.syncLegacyPlayers()
+	return engine
 }
 
 // Update advances the game state by one tick.
-func (e *Engine) Update(p1Actions, p2Actions []Action) {
+// actions is a slice per player (1-based indexing).
+func (e *Engine) Update(actions [][]Action) {
 	e.State.Tick++
-	for _, action := range p1Actions {
-		e.applyAction(&e.State.P1, 1, action)
+
+	for idx, acts := range actions {
+		playerID := idx + 1
+		p := e.State.PlayerRef(playerID)
+		if p == nil {
+			continue
+		}
+		for _, action := range acts {
+			e.applyAction(p, playerID, action)
+		}
 	}
-	for _, action := range p2Actions {
-		e.applyAction(&e.State.P2, 2, action)
-	}
+
 	e.updateSnowballs()
+	e.syncLegacyPlayers()
 }
 
 func (e *Engine) applyAction(p *Player, playerID int, action Action) {
 	switch action.Type {
 	case ActionMove:
-		// Convert angle to radians
 		// 0° = north (Y+), 90° = east (X+), 180° = south (Y-), 270° = west (X-)
 		rad := p.Angle * math.Pi / 180.0
 		newX := p.X + math.Sin(rad)*action.Value
 		newY := p.Y + math.Cos(rad)*action.Value
 
-		// Clamp to field boundaries
 		halfWidth := float64(e.Config.Field.Width) / 2
 		halfHeight := float64(e.Config.Field.Height) / 2
 		p.X = math.Max(-halfWidth, math.Min(halfWidth, newX))
 		p.Y = math.Max(-halfHeight, math.Min(halfHeight, newY))
-
-		// Round coordinates to integers
 		p.X = math.Round(p.X)
 		p.Y = math.Round(p.Y)
 	case ActionTurn:
 		p.Angle += action.Value
-		// Normalize angle to 0-359 degrees
 		p.Angle = math.Mod(p.Angle, 360)
 		if p.Angle < 0 {
 			p.Angle += 360
 		}
 	case ActionToss:
-		// Check snowball inventory
 		if p.SnowballCount <= 0 {
 			return
 		}
 
-		// Count flying snowballs from this player
 		flyingCount := 0
 		for _, sb := range e.State.Snowballs {
 			if sb.OwnerID == playerID {
@@ -92,8 +112,6 @@ func (e *Engine) applyAction(p *Player, playerID int, action Action) {
 			return
 		}
 
-		// Create snowball
-		// 0° = north (Y+), 90° = east (X+)
 		angle := p.Angle
 		rad := angle * math.Pi / 180.0
 		speed := float64(e.Config.Snowball.Speed)
@@ -123,24 +141,19 @@ func (e *Engine) updateSnowballs() {
 	remaining := []Snowball{}
 
 	for _, sb := range e.State.Snowballs {
-		// Move snowball
 		sb.X += sb.VX
 		sb.Y += sb.VY
 		sb.Traveled += speed
 
-		// Check boundary
 		if sb.X < -halfWidth || sb.X > halfWidth || sb.Y < -halfHeight || sb.Y > halfHeight {
-			continue // Out of bounds, remove
+			continue
 		}
 
-		// Check target reached
 		if sb.Traveled >= sb.Target {
-			// Explode: check damage to players
 			e.checkSnowballDamage(&sb, damageRadius)
-			continue // Remove after explosion
+			continue
 		}
 
-		// Snowball continues flying
 		remaining = append(remaining, sb)
 	}
 
@@ -148,30 +161,38 @@ func (e *Engine) updateSnowballs() {
 }
 
 func (e *Engine) checkSnowballDamage(sb *Snowball, damageRadius float64) {
-	// Check distance to P1
-	dx1 := e.State.P1.X - sb.X
-	dy1 := e.State.P1.Y - sb.Y
-	dist1 := math.Sqrt(dx1*dx1 + dy1*dy1)
-	if dist1 <= damageRadius {
-		e.State.P1.HP -= e.Config.Snowball.Damage
-		if e.State.P1.HP < 0 {
-			e.State.P1.HP = 0
-		}
-	}
-
-	// Check distance to P2
-	dx2 := e.State.P2.X - sb.X
-	dy2 := e.State.P2.Y - sb.Y
-	dist2 := math.Sqrt(dx2*dx2 + dy2*dy2)
-	if dist2 <= damageRadius {
-		e.State.P2.HP -= e.Config.Snowball.Damage
-		if e.State.P2.HP < 0 {
-			e.State.P2.HP = 0
+	for i := range e.State.Players {
+		// Skip owner damage? original allowed hitting self? leave as is (can self-hit)
+		p := &e.State.Players[i]
+		dx := p.X - sb.X
+		dy := p.Y - sb.Y
+		dist := math.Sqrt(dx*dx + dy*dy)
+		if dist <= damageRadius {
+			p.HP -= e.Config.Snowball.Damage
+			if p.HP < 0 {
+				p.HP = 0
+			}
 		}
 	}
 }
 
-// IsGameOver returns true if the game should end (e.g. one player has 0 HP).
+// IsGameOver returns true if only one or zero players have HP > 0.
 func (e *Engine) IsGameOver() bool {
-	return e.State.P1.HP <= 0 || e.State.P2.HP <= 0
+	alive := 0
+	for _, p := range e.State.Players {
+		if p.HP > 0 {
+			alive++
+		}
+	}
+	return alive <= 1
+}
+
+// syncLegacyPlayers copies first two players (if present) into P1/P2 fields for backward compatibility.
+func (e *Engine) syncLegacyPlayers() {
+	if len(e.State.Players) > 0 {
+		e.State.P1 = e.State.Players[0]
+	}
+	if len(e.State.Players) > 1 {
+		e.State.P2 = e.State.Players[1]
+	}
 }

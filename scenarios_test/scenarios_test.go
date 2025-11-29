@@ -32,6 +32,8 @@ func runScenario(t *testing.T, scenarioDir string) []game.GameState {
 		t.Fatalf("failed to read p2.js: %v", err)
 	}
 
+	numPlayers := 2
+
 	// Create runtimes
 	rt1 := js.NewQuickJSRuntime(cfg, 1)
 	defer rt1.Close()
@@ -46,7 +48,24 @@ func runScenario(t *testing.T, scenarioDir string) []game.GameState {
 	}
 
 	// Create game engine
-	engine := game.NewGame(cfg)
+	engine := game.NewGame(cfg, numPlayers)
+	// For deterministic scenario tests, override spawn to fixed legacy positions
+	engine.State.Players[0] = game.Player{
+		X:             -50,
+		Y:             0,
+		HP:            cfg.Snowbot.MaxHP,
+		Angle:         0,
+		SnowballCount: cfg.Snowbot.MaxSnowball,
+	}
+	engine.State.Players[1] = game.Player{
+		X:             50,
+		Y:             0,
+		HP:            cfg.Snowbot.MaxHP,
+		Angle:         180,
+		SnowballCount: cfg.Snowbot.MaxSnowball,
+	}
+	engine.State.P1 = engine.State.Players[0]
+	engine.State.P2 = engine.State.Players[1]
 
 	// Run game and collect states
 	states := []game.GameState{engine.State}
@@ -62,7 +81,7 @@ func runScenario(t *testing.T, scenarioDir string) []game.GameState {
 			t.Fatalf("error running p2 at tick %d: %v", i, err)
 		}
 
-		engine.Update(actions1, actions2)
+		engine.Update([][]game.Action{actions1, actions2})
 		states = append(states, engine.State)
 
 		if engine.IsGameOver() {

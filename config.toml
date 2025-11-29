@@ -1,5 +1,7 @@
 [match]
 max_ticks = 1000           # Maximum duration of the match in ticks
+max_players = 6            # Maximum number of players supported
+random_seed = 0            # Optional: set a non-zero seed for deterministic RNG (spawn etc.)
 
 [field]
 width = 1000               # Width of the game field

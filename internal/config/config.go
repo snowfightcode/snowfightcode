@@ -19,7 +19,10 @@ type Config struct {
 
 // MatchConfig contains match-related settings.
 type MatchConfig struct {
-	MaxTicks int `toml:"max_ticks"`
+	MaxTicks    int   `toml:"max_ticks"`
+	MaxPlayers  int   `toml:"max_players"`
+	// RandomSeed: if non-zero, deterministic RNG for spawn and other random features
+	RandomSeed  int64 `toml:"random_seed"`
 }
 
 // FieldConfig contains field dimension settings.
@@ -62,7 +65,9 @@ type SensorConfig struct {
 func Default() *Config {
 	return &Config{
 		Match: MatchConfig{
-			MaxTicks: 1000,
+			MaxTicks:   1000,
+			MaxPlayers: 2,
+			RandomSeed: 0,
 		},
 		Field: FieldConfig{
 			Width:  1000,

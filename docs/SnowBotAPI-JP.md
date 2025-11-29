@@ -2,7 +2,7 @@
 
 ## 1vs1
 
-1. ユーザーはゲーム内で提供されるAPIを用いて、雪合戦ロボット **SnowBot** を操る。
+1. ユーザーはゲーム内で提供されるAPIを用いて、雪合戦ロボット **SnowBot** を操る。プレイヤー数は最大 `<match.max_players>` まで可変。
 2. SnowBotは最大で **<snowbot.max_snowball>** 個までの雪玉（Snowball）を作成して搭載できる。
 3. SnowBotは搭載している雪玉を投げて、他のSnowBotに当てることができる。
 4. 雪玉が命中したSnowBotは **<snowball.damage>** ポイントのHPを失う。
@@ -101,6 +101,8 @@
 ## ゲームパラメーター
 
 * `match.max_ticks`: 対戦時間（ティック数）
+* `match.max_players`: 同時参加できるプレイヤー数の上限
+* `match.random_seed`: 0以外なら乱数シード（スポーン位置や将来のランダム要素用、テスト向け）
 * `field.width`: フィールドの幅
 * `field.height`: フィールドの高さ
 * `snowbot.min_move`: 1ティックでの移動距離の最小値

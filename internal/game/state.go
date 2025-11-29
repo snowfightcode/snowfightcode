@@ -3,7 +3,7 @@ package game
 // Snowball represents a flying snowball projectile.
 type Snowball struct {
 	ID       int     `json:"id"`
-	OwnerID  int     `json:"owner_id"` // 1 for P1, 2 for P2
+	OwnerID  int     `json:"owner_id"` // 1-based player ID
 	X        float64 `json:"x"`
 	Y        float64 `json:"y"`
 	VX       float64 `json:"vx"`       // Velocity X
@@ -24,9 +24,28 @@ type Player struct {
 // GameState represents the state of the game at a given tick.
 type GameState struct {
 	Tick      int        `json:"tick"`
-	P1        Player     `json:"p1"`
-	P2        Player     `json:"p2"`
+	Players   []Player   `json:"players"`
+	// P1/P2 are kept for backward compatibility with older tests/tools (first two players if present).
+	P1        Player     `json:"p1,omitempty"`
+	P2        Player     `json:"p2,omitempty"`
 	Snowballs []Snowball `json:"snowballs"`
+}
+
+// PlayerRef returns pointer to player by 1-based ID, or nil.
+func (s *GameState) PlayerRef(id int) *Player {
+	if id <= 0 {
+		return nil
+	}
+	if len(s.Players) >= id {
+		return &s.Players[id-1]
+	}
+	if id == 1 {
+		return &s.P1
+	}
+	if id == 2 {
+		return &s.P2
+	}
+	return nil
 }
 
 // ActionType represents the type of action.
