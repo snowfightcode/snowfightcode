@@ -3,6 +3,7 @@ package js
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"snowfight/internal/config"
 	"snowfight/internal/game"
 
@@ -152,7 +153,7 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 		for _, arg := range args {
 			printArgs = append(printArgs, arg.String())
 		}
-		fmt.Println(printArgs...)
+		fmt.Fprintln(os.Stderr, printArgs...)
 		return this.Context().NewNull(), nil
 	})
 
