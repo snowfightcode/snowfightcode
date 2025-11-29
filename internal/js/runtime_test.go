@@ -277,6 +277,48 @@ func TestActionAccumulation(t *testing.T) {
 	}
 }
 
+func TestDuplicateActionsIgnored(t *testing.T) {
+	cfg := config.Default()
+	rt := NewQuickJSRuntime(cfg, 1)
+	defer rt.Close()
+
+	code := `
+	function run(state) {
+	    move(5);
+	    move(3);
+	    turn(45);
+	    turn(-15);
+	    toss(30);
+	    toss(10);
+	}
+	`
+
+	if err := rt.Load(code); err != nil {
+		t.Fatalf("failed to load code: %v", err)
+	}
+
+	actions, err := rt.Run(game.GameState{})
+	if err != nil {
+		t.Fatalf("execution failed: %v", err)
+	}
+
+	if len(actions) != 3 {
+		t.Fatalf("expected 3 actions (first call of each API), got %d", len(actions))
+	}
+
+	if actions[0].Type != game.ActionMove || actions[0].Value != 5 {
+		t.Fatalf("expected first action move(5), got %v value=%f", actions[0].Type, actions[0].Value)
+	}
+
+	if actions[1].Type != game.ActionTurn || actions[1].Value != 45 {
+		t.Fatalf("expected second action turn(45), got %v value=%f", actions[1].Type, actions[1].Value)
+	}
+
+	if actions[2].Type != game.ActionToss || actions[2].ThrowDistance != 30 {
+		t.Fatalf("expected third action toss(30), got %v distance=%d", actions[2].Type, actions[2].ThrowDistance)
+	}
+}
+
 func TestConsoleLog(t *testing.T) {
 	cfg := config.Default()
 	rt := NewQuickJSRuntime(cfg, 1)

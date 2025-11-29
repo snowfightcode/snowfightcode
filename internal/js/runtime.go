@@ -24,6 +24,11 @@ type QuickJSRuntime struct {
 	currentState   *game.GameState
 	playerID       int // 1 for P1, 2 for P2
 	Config         *config.Config
+
+	// per-tick guards to prevent multiple calls of the same API
+	moveUsed bool
+	turnUsed bool
+	tossUsed bool
 }
 
 // NewQuickJSRuntime creates a new QuickJSRuntime instance.
@@ -56,6 +61,11 @@ func (rt *QuickJSRuntime) Close() {
 func (rt *QuickJSRuntime) registerBuiltins() {
 	// move(distance)
 	rt.ctx.SetFunc("move", func(this *qjs.This) (*qjs.Value, error) {
+		if rt.moveUsed {
+			return this.Context().NewNull(), nil
+		}
+		rt.moveUsed = true
+
 		args := this.Args()
 		if len(args) > 0 {
 			// Round to integer
@@ -91,6 +101,11 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 
 	// turn(degrees)
 	rt.ctx.SetFunc("turn", func(this *qjs.This) (*qjs.Value, error) {
+		if rt.turnUsed {
+			return this.Context().NewNull(), nil
+		}
+		rt.turnUsed = true
+
 		args := this.Args()
 		if len(args) > 0 {
 			// Round to integer
@@ -122,6 +137,11 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 
 	// toss(distance)
 	rt.ctx.SetFunc("toss", func(this *qjs.This) (*qjs.Value, error) {
+		if rt.tossUsed {
+			return this.Context().NewNull(), nil
+		}
+		rt.tossUsed = true
+
 		args := this.Args()
 		if len(args) < 1 {
 			return this.Context().NewNull(), nil
@@ -302,6 +322,9 @@ func (rt *QuickJSRuntime) Load(code string) error {
 func (rt *QuickJSRuntime) Run(state game.GameState) ([]game.Action, error) {
 	// Reset actions for this tick
 	rt.currentActions = nil
+	rt.moveUsed = false
+	rt.turnUsed = false
+	rt.tossUsed = false
 	// Store current state for API functions to access
 	rt.currentState = &state
 
