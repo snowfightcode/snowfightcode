@@ -1,14 +1,12 @@
 # ゲームのルール
 
-## 1vs1
-
 1. ユーザーはゲーム内で提供されるAPIを用いて、雪合戦ロボット **SnowBot** を操る。プレイヤー数は最大 `<match.max_players>` まで可変。
 2. SnowBotは最大で **<snowbot.max_snowball>** 個までの雪玉（Snowball）を作成して搭載できる。
 3. SnowBotは搭載している雪玉を投げて、他のSnowBotに当てることができる。
 4. 雪玉が命中したSnowBotは **<snowball.damage>** ポイントのHPを失う。
 5. SnowBotのHPの初期値は **<snowbot.max_hp>** ポイントである。
 6. 対戦時間は **<match.max_ticks>** ティック。
-7. **1vs1の勝敗条件**: 相手のHPを0にした側が勝利。時間切れ時・同時撃破はタイブレークに従う。
+7. **勝敗条件**: 相手のHPを0にした側が勝利。時間切れ時・同時撃破は勝者なし。
 
 # SnowBot API 一覧
 
