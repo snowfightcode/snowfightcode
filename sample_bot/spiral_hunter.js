@@ -7,6 +7,7 @@
 let scanAngle = 0;
 let sweepStep = 45;      // matches default max_scan
 let spiralTurn = 10;     // small turn after each full sweep
+let isCloseEnough = false;
 
 function normalize(angle) {
   angle %= 360;
@@ -30,23 +31,32 @@ function run(state) {
   if (results.length > 0) {
     // pick nearest target
     const target = results[0];
+    const distance = Math.round(target.distance);
     const currentDir = direction();
     const diff = deltaAngle(target.angle, currentDir);
 
     // Turn toward target first
     if (Math.abs(diff) > 5) {
       turn(diff);
-      return;
+      //return;
     }
 
-    // Aligned: throw. Use target distance, capped to 100.
-    const throwDist = Math.min(100, Math.max(1, Math.round(target.distance)));
-    toss(throwDist);
+    // Aligned: throw. Use target distance, capped to 500.
+    if (distance < 500) {
+      const throwDist = Math.min(500, Math.max(1, distance));
+      toss(throwDist);
+    }
+
+    if (distance < 200) {
+      isCloseEnough = true;
+    }
     return;
   }
 
   // No target seen: patrol forward
-  move(5);
+  if (!isCloseEnough) {
+    move(5);
+  }
 
   // Every full circle (scanAngle back to 0), add slight turn to create a spiral path.
   if (scanAngle === 0) {
