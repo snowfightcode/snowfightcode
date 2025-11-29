@@ -36,13 +36,13 @@ func runMatch(args []string) error {
 		return fmt.Errorf("failed to read %s: %w", file2, err)
 	}
 
-	rt1 := js.NewQuickJSRuntime(cfg)
+	rt1 := js.NewQuickJSRuntime(cfg, 1)
 	defer rt1.Close()
 	if err := rt1.Load(string(code1)); err != nil {
 		return fmt.Errorf("failed to load %s: %w", file1, err)
 	}
 
-	rt2 := js.NewQuickJSRuntime(cfg)
+	rt2 := js.NewQuickJSRuntime(cfg, 2)
 	defer rt2.Close()
 	if err := rt2.Load(string(code2)); err != nil {
 		return fmt.Errorf("failed to load %s: %w", file2, err)

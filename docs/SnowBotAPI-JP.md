@@ -45,6 +45,47 @@
   * `distance`が負の場合、0とみなす。
   * `distance`が0の場合、No-opとする。雪玉は消費しない。
 
+## センサー系
+
+* `scan(angle: Integer, resolution: Integer): FieldObject[]`
+
+  * `angle` 方向を中心に、`resolution`（度）内の敵/ブロックをスキャン。
+  * 返値はオブジェクトタイプ（SnowBot, ブロック）、角度、距離の配列。
+  * 角度基準は北が0度。360超/負は`angle % 360` に正規化する。
+  * スキャン原点はBot中心。
+  * `resolution` の範囲: `MIN_SCAN <= resolution <= MAX_SCAN`。`resolution=0` の場合、戻り値は空配列。
+  * 入力範囲外（例: `resolution < MIN_SCAN`）の場合、戻り値は空配列。
+  * 視野は扇形FOV。角度範囲は **[angle - resolution/2, angle + resolution/2)** （半開区間）。
+  * レイキャスト遮蔽なし（遮蔽物越しでも検知）。
+  * 検知距離: min=1, max=FIELD_SIZE。
+  * 返却の整列は**距離昇順、距離同値時は角度昇順**。自己は除外。
+  * 同一ティック内は同一スナップショットを返す（再呼び出しで不変）。
+
+* `position(): Position`
+
+  * 自分の座標を取得
+
+* `direction(): Integer`
+
+  * 自分の向きを返す。
+
+## 状態管理
+
+* `hp(): Integer`
+
+  * HP残量を返す。
+
+* `max_hp(): Integer`
+
+  * 最大HPを返す。
+
+* `snowball_count(): Integer`
+
+  * 搭載雪玉の数を返す。
+
+* `max_snowball(): Integer`
+
+  * 最大搭載雪玉数を返す。
 
 ## プログラム実行制約
 

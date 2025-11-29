@@ -1,0 +1,23 @@
+[match]
+max_ticks = 100
+
+[field]
+width = 1000
+height = 1000
+
+[snowbot]
+min_move = 1
+max_move = 10
+max_hp = 100
+max_snowball = 10
+max_flying_snowball = 3
+
+[snowball]
+max_flying_distance = 200
+speed = 10
+damage_radius = 5
+damage = 10
+
+[sensor]
+min_scan = 10
+max_scan = 45

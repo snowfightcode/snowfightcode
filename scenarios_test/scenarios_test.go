@@ -33,13 +33,13 @@ func runScenario(t *testing.T, scenarioDir string) []game.GameState {
 	}
 
 	// Create runtimes
-	rt1 := js.NewQuickJSRuntime(cfg)
+	rt1 := js.NewQuickJSRuntime(cfg, 1)
 	defer rt1.Close()
 	if err := rt1.Load(string(p1Code)); err != nil {
 		t.Fatalf("failed to load p1.js: %v", err)
 	}
 
-	rt2 := js.NewQuickJSRuntime(cfg)
+	rt2 := js.NewQuickJSRuntime(cfg, 2)
 	defer rt2.Close()
 	if err := rt2.Load(string(p2Code)); err != nil {
 		t.Fatalf("failed to load p2.js: %v", err)
@@ -287,4 +287,20 @@ func TestScenario07_GameOver(t *testing.T) {
 	}
 
 	t.Logf("✅ Game over verified: ended at tick %d with P2 HP %d", len(states), finalState.P2.HP)
+}
+
+func TestScenario08_ScanAndShoot(t *testing.T) {
+	states := runScenario(t, "testdata/scenarios/08_scan_and_shoot")
+
+	// P1 should find P2, turn, and shoot.
+	// P2 starts with 100 HP.
+	// Should take damage.
+
+	finalState := states[len(states)-1]
+
+	if finalState.P2.HP == 100 {
+		t.Errorf("expected P2 to take damage, but HP is still 100")
+	}
+
+	t.Logf("✅ Scan and shoot verified: P2 HP dropped to %d", finalState.P2.HP)
 }

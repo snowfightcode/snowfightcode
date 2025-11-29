@@ -14,6 +14,7 @@ type Config struct {
 	Snowbot  SnowbotConfig  `toml:"snowbot"`
 	Snowball SnowballConfig `toml:"snowball"`
 	Runtime  RuntimeConfig  `toml:"runtime"`
+	Sensor   SensorConfig   `toml:"sensor"`
 }
 
 // MatchConfig contains match-related settings.
@@ -51,6 +52,12 @@ type RuntimeConfig struct {
 	TickTimeoutMs  int `toml:"tick_timeout_ms"`
 }
 
+// SensorConfig contains sensor-related settings.
+type SensorConfig struct {
+	MinScan int `toml:"min_scan"`
+	MaxScan int `toml:"max_scan"`
+}
+
 // Default returns the default configuration.
 func Default() *Config {
 	return &Config{
@@ -78,6 +85,10 @@ func Default() *Config {
 			MaxMemoryBytes: 10485760, // 10MB
 			MaxStackBytes:  1048576,  // 1MB
 			TickTimeoutMs:  100,      // 100ms
+		},
+		Sensor: SensorConfig{
+			MinScan: 10,
+			MaxScan: 45,
 		},
 	}
 }

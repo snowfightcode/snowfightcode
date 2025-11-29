@@ -21,11 +21,13 @@ type QuickJSRuntime struct {
 	rt             *qjs.Runtime
 	ctx            *qjs.Context
 	currentActions []game.Action
+	currentState   *game.GameState
+	playerID       int // 1 for P1, 2 for P2
 	Config         *config.Config
 }
 
 // NewQuickJSRuntime creates a new QuickJSRuntime instance.
-func NewQuickJSRuntime(cfg *config.Config) *QuickJSRuntime {
+func NewQuickJSRuntime(cfg *config.Config, playerID int) *QuickJSRuntime {
 	// Configure resource limits
 	rt, err := qjs.New(qjs.Option{
 		MaxStackSize:     cfg.Runtime.MaxStackBytes,
@@ -38,9 +40,10 @@ func NewQuickJSRuntime(cfg *config.Config) *QuickJSRuntime {
 	ctx := rt.Context()
 
 	qjsRt := &QuickJSRuntime{
-		rt:     rt,
-		ctx:    ctx,
-		Config: cfg,
+		rt:       rt,
+		ctx:      ctx,
+		playerID: playerID,
+		Config:   cfg,
 	}
 	qjsRt.registerBuiltins()
 	return qjsRt
@@ -149,6 +152,122 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 		return this.Context().NewNull(), nil
 	})
 
+	// scan(angle, resolution)
+	rt.ctx.SetFunc("scan", func(this *qjs.This) (*qjs.Value, error) {
+		args := this.Args()
+		if len(args) < 2 {
+			// Return empty array if insufficient arguments
+			val, _ := this.Context().Eval("empty-array", qjs.Code("[]"))
+			return val, nil
+		}
+
+		if rt.currentState == nil {
+			val, _ := this.Context().Eval("empty-array", qjs.Code("[]"))
+			return val, nil
+		}
+
+		// Get arguments
+		angle := int(args[0].Float64())
+		resolution := int(args[1].Float64())
+
+		// Delegate to game package
+		results := game.CalculateScan(rt.currentState, rt.Config, rt.playerID, angle, resolution)
+
+		if len(results) == 0 {
+			val, _ := this.Context().Eval("empty-array", qjs.Code("[]"))
+			return val, nil
+		}
+
+		// Convert to JSON and return
+		resultsJSON, _ := json.Marshal(results)
+		val, _ := this.Context().Eval("scan-result", qjs.Code(string(resultsJSON)))
+		return val, nil
+	})
+
+	// position()
+	rt.ctx.SetFunc("position", func(this *qjs.This) (*qjs.Value, error) {
+		if rt.currentState == nil {
+			return this.Context().NewNull(), nil
+		}
+
+		var player *game.Player
+		if rt.playerID == 1 {
+			player = &rt.currentState.P1
+		} else {
+			player = &rt.currentState.P2
+		}
+
+		posJSON := fmt.Sprintf(`({"x": %f, "y": %f})`, player.X, player.Y)
+		val, _ := this.Context().Eval("position-result", qjs.Code(posJSON))
+		return val, nil
+	})
+
+	// direction()
+	rt.ctx.SetFunc("direction", func(this *qjs.This) (*qjs.Value, error) {
+		if rt.currentState == nil {
+			val, _ := this.Context().Eval("zero", qjs.Code("0"))
+			return val, nil
+		}
+
+		var player *game.Player
+		if rt.playerID == 1 {
+			player = &rt.currentState.P1
+		} else {
+			player = &rt.currentState.P2
+		}
+
+		val, _ := this.Context().Eval("direction-result", qjs.Code(fmt.Sprintf("%d", int(player.Angle))))
+		return val, nil
+	})
+
+	// hp()
+	rt.ctx.SetFunc("hp", func(this *qjs.This) (*qjs.Value, error) {
+		if rt.currentState == nil {
+			val, _ := this.Context().Eval("zero", qjs.Code("0"))
+			return val, nil
+		}
+
+		var player *game.Player
+		if rt.playerID == 1 {
+			player = &rt.currentState.P1
+		} else {
+			player = &rt.currentState.P2
+		}
+
+		val, _ := this.Context().Eval("hp-result", qjs.Code(fmt.Sprintf("%d", player.HP)))
+		return val, nil
+	})
+
+	// max_hp()
+	rt.ctx.SetFunc("max_hp", func(this *qjs.This) (*qjs.Value, error) {
+		val, _ := this.Context().Eval("max-hp-result", qjs.Code(fmt.Sprintf("%d", rt.Config.Snowbot.MaxHP)))
+		return val, nil
+	})
+
+	// snowball_count()
+	rt.ctx.SetFunc("snowball_count", func(this *qjs.This) (*qjs.Value, error) {
+		if rt.currentState == nil {
+			val, _ := this.Context().Eval("zero", qjs.Code("0"))
+			return val, nil
+		}
+
+		var player *game.Player
+		if rt.playerID == 1 {
+			player = &rt.currentState.P1
+		} else {
+			player = &rt.currentState.P2
+		}
+
+		val, _ := this.Context().Eval("snowball-count-result", qjs.Code(fmt.Sprintf("%d", player.SnowballCount)))
+		return val, nil
+	})
+
+	// max_snowball()
+	rt.ctx.SetFunc("max_snowball", func(this *qjs.This) (*qjs.Value, error) {
+		val, _ := this.Context().Eval("max-snowball-result", qjs.Code(fmt.Sprintf("%d", rt.Config.Snowbot.MaxSnowball)))
+		return val, nil
+	})
+
 	// Setup console object in JavaScript
 	rt.ctx.Eval("console-setup", qjs.Code(`
 		globalThis.console = {
@@ -183,6 +302,8 @@ func (rt *QuickJSRuntime) Load(code string) error {
 func (rt *QuickJSRuntime) Run(state game.GameState) ([]game.Action, error) {
 	// Reset actions for this tick
 	rt.currentActions = nil
+	// Store current state for API functions to access
+	rt.currentState = &state
 
 	stateBytes, err := json.Marshal(state)
 	if err != nil {

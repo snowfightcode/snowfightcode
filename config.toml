@@ -22,3 +22,7 @@ damage = 10                # Amount of HP damage a snowball causes
 max_memory_bytes = 10485760    # Maximum memory allowed for bot script (10MB)
 max_stack_bytes = 1048576      # Maximum stack size allowed for bot script (1MB)
 tick_timeout_ms = 100          # Execution time limit per tick in milliseconds
+
+[sensor]
+min_scan = 10                  # Minimum scan resolution in degrees
+max_scan = 45                  # Maximum scan resolution in degrees

@@ -45,3 +45,10 @@ type Action struct {
 	Value         float64 // Distance for move, Degrees for turn
 	ThrowDistance int     // Throw: target distance
 }
+
+// FieldObject represents an object detected by the scan API.
+type FieldObject struct {
+	Type     string  `json:"type"`     // "snowbot"
+	Angle    float64 `json:"angle"`    // Angle in degrees
+	Distance float64 `json:"distance"` // Distance from scanner
+}
