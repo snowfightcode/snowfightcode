@@ -3,10 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"snowfight/internal/config"
 	"snowfight/internal/game"
 	"snowfight/internal/js"
+	"strings"
 )
 
 func runMatch(args []string) error {
@@ -23,12 +26,12 @@ func runMatch(args []string) error {
 	file1 := args[0]
 	file2 := args[1]
 
-	code1, err := os.ReadFile(file1)
+	code1, err := readCode(file1)
 	if err != nil {
 		return fmt.Errorf("failed to read %s: %w", file1, err)
 	}
 
-	code2, err := os.ReadFile(file2)
+	code2, err := readCode(file2)
 	if err != nil {
 		return fmt.Errorf("failed to read %s: %w", file2, err)
 	}
@@ -86,4 +89,22 @@ func runMatch(args []string) error {
 	}
 
 	return nil
+}
+
+func readCode(pathOrURL string) ([]byte, error) {
+	if strings.HasPrefix(pathOrURL, "http://") || strings.HasPrefix(pathOrURL, "https://") {
+		resp, err := http.Get(pathOrURL)
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch URL: %w", err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			return nil, fmt.Errorf("bad status: %s", resp.Status)
+		}
+
+		return io.ReadAll(resp.Body)
+	}
+
+	return os.ReadFile(pathOrURL)
 }
