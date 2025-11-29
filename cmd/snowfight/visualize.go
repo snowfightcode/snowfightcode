@@ -226,7 +226,7 @@ function draw() {
 
 function drawPlayer(p, colorStr) {
     push();
-    translate(p.x, p.y);
+    translate(p.x, -p.y); // invert Y so north is up
     
     // Body
     fill(colorStr);
@@ -252,7 +252,7 @@ function drawPlayer(p, colorStr) {
 
 function drawSnowball(sb) {
     push();
-    translate(sb.x, sb.y);
+    translate(sb.x, -sb.y); // invert Y so north is up
     fill(255);
     stroke(0);
     strokeWeight(1);
