@@ -12,7 +12,7 @@ import (
 // Runtime defines the interface for a game script runtime.
 type Runtime interface {
 	Load(code string) error
-	Run(state game.GameState) ([]game.Action, error)
+	Run(state game.GameState) ([]game.Action, []Warning, error)
 	Close()
 }
 
@@ -29,6 +29,17 @@ type QuickJSRuntime struct {
 	moveUsed bool
 	turnUsed bool
 	tossUsed bool
+
+	warnings []Warning
+}
+
+// Warning represents an API misuse warning to emit as JSONL.
+type Warning struct {
+	Warning string        `json:"warning"`
+	Tick    int           `json:"tick"`   // assigned by caller
+	Player  int           `json:"player"` // 1-based
+	API     string        `json:"api"`
+	Args    []interface{} `json:"args,omitempty"`
 }
 
 // NewQuickJSRuntime creates a new QuickJSRuntime instance.
@@ -62,11 +73,16 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 	// move(distance)
 	rt.ctx.SetFunc("move", func(this *qjs.This) (*qjs.Value, error) {
 		if rt.moveUsed {
+			rt.addWarning("called multiple times in one tick", "move", this.Args())
 			return this.Context().NewNull(), nil
 		}
 		rt.moveUsed = true
 
 		args := this.Args()
+		if len(args) == 0 {
+			rt.addWarning("missing argument", "move", args)
+			return this.Context().NewNull(), nil
+		}
 		if len(args) > 0 {
 			// Round to integer
 			distance := int(args[0].Float64())
@@ -102,11 +118,16 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 	// turn(degrees)
 	rt.ctx.SetFunc("turn", func(this *qjs.This) (*qjs.Value, error) {
 		if rt.turnUsed {
+			rt.addWarning("called multiple times in one tick", "turn", this.Args())
 			return this.Context().NewNull(), nil
 		}
 		rt.turnUsed = true
 
 		args := this.Args()
+		if len(args) == 0 {
+			rt.addWarning("missing argument", "turn", args)
+			return this.Context().NewNull(), nil
+		}
 		if len(args) > 0 {
 			// Round to integer
 			angle := int(args[0].Float64())
@@ -138,12 +159,14 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 	// toss(distance)
 	rt.ctx.SetFunc("toss", func(this *qjs.This) (*qjs.Value, error) {
 		if rt.tossUsed {
+			rt.addWarning("called multiple times in one tick", "toss", this.Args())
 			return this.Context().NewNull(), nil
 		}
 		rt.tossUsed = true
 
 		args := this.Args()
 		if len(args) < 1 {
+			rt.addWarning("missing argument", "toss", args)
 			return this.Context().NewNull(), nil
 		}
 
@@ -176,6 +199,7 @@ func (rt *QuickJSRuntime) registerBuiltins() {
 	rt.ctx.SetFunc("scan", func(this *qjs.This) (*qjs.Value, error) {
 		args := this.Args()
 		if len(args) < 2 {
+			rt.addWarning("missing argument", "scan", args)
 			// Return empty array if insufficient arguments
 			val, _ := this.Context().Eval("empty-array", qjs.Code("[]"))
 			return val, nil
@@ -314,12 +338,13 @@ func (rt *QuickJSRuntime) Load(code string) error {
 }
 
 // Run executes the 'run' function in the JS environment.
-func (rt *QuickJSRuntime) Run(state game.GameState) ([]game.Action, error) {
+func (rt *QuickJSRuntime) Run(state game.GameState) ([]game.Action, []Warning, error) {
 	// Reset actions for this tick
 	rt.currentActions = nil
 	rt.moveUsed = false
 	rt.turnUsed = false
 	rt.tossUsed = false
+	rt.warnings = nil
 	// Store current state for API functions to access
 	rt.currentState = &state
 
@@ -337,7 +362,7 @@ func (rt *QuickJSRuntime) Run(state game.GameState) ([]game.Action, error) {
 
 	stateBytes, err := json.Marshal(state)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal state: %w", err)
+		return nil, rt.warnings, fmt.Errorf("failed to marshal state: %w", err)
 	}
 
 	jsonStr := string(stateBytes)
@@ -351,8 +376,31 @@ func (rt *QuickJSRuntime) Run(state game.GameState) ([]game.Action, error) {
 
 	_, err = rt.ctx.Eval("run-script", qjs.Code(script))
 	if err != nil {
-		return nil, fmt.Errorf("execution error: %w", err)
+		return nil, rt.warnings, fmt.Errorf("execution error: %w", err)
 	}
 
-	return rt.currentActions, nil
+	return rt.currentActions, rt.warnings, nil
+}
+
+func (rt *QuickJSRuntime) addWarning(msg, api string, args []*qjs.Value) {
+	if len(rt.warnings) >= 3 {
+		// hard cap per tick
+		return
+	}
+	converted := make([]interface{}, 0, len(args))
+	for _, a := range args {
+		converted = append(converted, a.String())
+	}
+	// tick is taken from currentState (may be nil on early calls)
+	tick := 0
+	if rt.currentState != nil {
+		tick = rt.currentState.Tick
+	}
+	rt.warnings = append(rt.warnings, Warning{
+		Warning: msg,
+		Tick:    tick,
+		Player:  rt.playerID,
+		API:     api,
+		Args:    converted,
+	})
 }

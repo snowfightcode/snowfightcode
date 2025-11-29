@@ -16,7 +16,7 @@ func TestMove_API(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	actions, err := rt.Run(game.GameState{})
+    actions, _, err := rt.Run(game.GameState{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -46,7 +46,7 @@ func TestMove_Clamping(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	actions, err := rt.Run(game.GameState{})
+    actions, _, err := rt.Run(game.GameState{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -67,7 +67,7 @@ func TestMove_Clamping(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	actions, err = rt2.Run(game.GameState{})
+	actions, _, err = rt2.Run(game.GameState{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,13 +91,16 @@ func TestMove_NoOp(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	actions, err := rt.Run(game.GameState{})
+	actions, warnings, err := rt.Run(game.GameState{})
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	if len(actions) != 0 {
 		t.Errorf("expected 0 actions (no-op), got %d", len(actions))
+	}
+	if len(warnings) != 0 {
+		t.Errorf("expected 0 warnings for valid no-op, got %d", len(warnings))
 	}
 }
 
@@ -111,7 +114,7 @@ func TestTurn_API(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	actions, err := rt.Run(game.GameState{})
+    actions, _, err := rt.Run(game.GameState{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -140,7 +143,7 @@ func TestTurn_Normalization(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	actions, err := rt.Run(game.GameState{})
+    actions, _, err := rt.Run(game.GameState{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -161,7 +164,7 @@ func TestToss_API(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	actions, err := rt.Run(game.GameState{})
+    actions, _, err := rt.Run(game.GameState{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -189,7 +192,7 @@ func TestToss_NoOp(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	actions, err := rt.Run(game.GameState{})
+    actions, _, err := rt.Run(game.GameState{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -210,7 +213,7 @@ func TestToss_DistanceClamping(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	actions, err := rt.Run(game.GameState{})
+    actions, _, err := rt.Run(game.GameState{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -230,7 +233,7 @@ func TestToss_NegativeDistance(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	actions, err := rt.Run(game.GameState{})
+    actions, _, err := rt.Run(game.GameState{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -257,7 +260,7 @@ func TestActionAccumulation(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	actions, err := rt.Run(game.GameState{})
+    actions, _, err := rt.Run(game.GameState{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -297,13 +300,16 @@ func TestDuplicateActionsIgnored(t *testing.T) {
 		t.Fatalf("failed to load code: %v", err)
 	}
 
-	actions, err := rt.Run(game.GameState{})
+    actions, warnings, err := rt.Run(game.GameState{})
 	if err != nil {
 		t.Fatalf("execution failed: %v", err)
 	}
 
 	if len(actions) != 3 {
 		t.Fatalf("expected 3 actions (first call of each API), got %d", len(actions))
+	}
+	if len(warnings) != 3 {
+		t.Fatalf("expected 3 warnings for duplicate calls, got %d", len(warnings))
 	}
 
 	if actions[0].Type != game.ActionMove || actions[0].Value != 5 {
@@ -335,7 +341,7 @@ func TestConsoleLog(t *testing.T) {
 	}
 
 	// console.log should not cause errors
-	actions, err := rt.Run(game.GameState{})
+	actions, _, err := rt.Run(game.GameState{})
 	if err != nil {
 		t.Errorf("console.log should not cause error: %v", err)
 	}
@@ -387,7 +393,7 @@ func TestStateAccessors(t *testing.T) {
 	// and we can verify return values if we expose them or use side effects.
 	// For now, let's trust the manual verification for the exact output format,
 	// and here we just ensure no runtime errors and basic execution.
-	_, err := rt.Run(state)
+    _, _, err := rt.Run(state)
 	if err != nil {
 		t.Errorf("execution failed: %v", err)
 	}
@@ -423,9 +429,9 @@ func TestScan_API(t *testing.T) {
 	if err := rt.Load(code1); err != nil {
 		t.Fatalf("failed to load code1: %v", err)
 	}
-	if _, err := rt.Run(state); err != nil {
-		t.Errorf("TestScan_API case 1 failed: %v", err)
-	}
+    if _, _, err := rt.Run(state); err != nil {
+        t.Errorf("TestScan_API case 1 failed: %v", err)
+    }
 
 	// Test case 2: Enemy out of angle (scan north 0 +/- 22.5)
 	code2 := `
@@ -439,7 +445,7 @@ func TestScan_API(t *testing.T) {
 	if err := rt.Load(code2); err != nil {
 		t.Fatalf("failed to load code2: %v", err)
 	}
-	if _, err := rt.Run(state); err != nil {
-		t.Errorf("TestScan_API case 2 failed: %v", err)
-	}
+    if _, _, err := rt.Run(state); err != nil {
+        t.Errorf("TestScan_API case 2 failed: %v", err)
+    }
 }

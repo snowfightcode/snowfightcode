@@ -71,15 +71,18 @@ func runScenario(t *testing.T, scenarioDir string) []game.GameState {
 	states := []game.GameState{engine.State}
 
 	for i := 0; i < cfg.Match.MaxTicks; i++ {
-		actions1, err := rt1.Run(engine.State)
+		actions1, warnings1, err := rt1.Run(engine.State)
 		if err != nil {
 			t.Fatalf("error running p1 at tick %d: %v", i, err)
 		}
 
-		actions2, err := rt2.Run(engine.State)
+		actions2, warnings2, err := rt2.Run(engine.State)
 		if err != nil {
 			t.Fatalf("error running p2 at tick %d: %v", i, err)
 		}
+
+		_ = warnings1
+		_ = warnings2
 
 		engine.Update([][]game.Action{actions1, actions2})
 		states = append(states, engine.State)

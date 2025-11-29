@@ -52,19 +52,55 @@ func runMatch(args []string) error {
 
 	// Run for max_ticks from config
 	for i := 0; i < cfg.Match.MaxTicks; i++ {
+		// Snapshot state for scripts/warnings (tick is current+1 for human-friendly)
+		stateForScripts := engine.State
+		stateForScripts.Tick = engine.State.Tick + 1
+
 		actions := make([][]game.Action, len(runtimes))
+		var warnings []js.Warning
 		for idx, rt := range runtimes {
-			act, err := rt.Run(engine.State)
+			act, w, err := rt.Run(stateForScripts)
 			if err != nil {
 				return fmt.Errorf("error running player %d: %w", idx+1, err)
 			}
 			actions[idx] = act
+			for _, warn := range w {
+				warn.Tick = stateForScripts.Tick
+				warnings = append(warnings, warn)
+			}
 		}
 
 		engine.Update(actions)
 
-		// Output JSONL
-		bytes, err := json.Marshal(engine.State)
+		// Prepare warning records with full state snapshot (pre-update snapshot used for context)
+		for _, w := range warnings {
+			record := map[string]interface{}{
+				"type":         "warning",
+				"tick":         w.Tick,
+				"players":      stateForScripts.Players,
+				"p1":           stateForScripts.P1,
+				"p2":           stateForScripts.P2,
+				"snowballs":    stateForScripts.Snowballs,
+				"warnedPlayer": w.Player,
+				"api":          w.API,
+				"args":         w.Args,
+				"warning":      w.Warning,
+			}
+			j, _ := json.Marshal(record)
+			fmt.Println(string(j))
+			fmt.Fprintf(os.Stderr, "Warning: Player %d, %s\n", w.Player, w.Warning)
+		}
+
+		// Output state record with Type="state" after update
+		stateRecord := map[string]interface{}{
+			"type":      "state",
+			"tick":      engine.State.Tick,
+			"players":   engine.State.Players,
+			"p1":        engine.State.P1,
+			"p2":        engine.State.P2,
+			"snowballs": engine.State.Snowballs,
+		}
+		bytes, err := json.Marshal(stateRecord)
 		if err != nil {
 			return fmt.Errorf("json marshal error: %w", err)
 		}
