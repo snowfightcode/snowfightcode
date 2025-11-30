@@ -400,7 +400,14 @@ func (rt *QuickJSRuntime) Run(state game.GameState) ([]game.Action, []Warning, e
 	}
 
 	if result != nil && result.IsException() {
-		return nil, rt.warnings, fmt.Errorf("execution error: %w", rt.ctx.Exception())
+		exErr := rt.ctx.Exception()
+		if exErr != nil {
+			rt.addWarning(exErr.Error(), "run", nil)
+		} else {
+			// フォールバック: OOMなどで例外文字列が取れないケース
+			rt.addWarning("execution error (possibly out of memory)", "run", nil)
+		}
+		return rt.currentActions, rt.warnings, nil
 	}
 
 	return rt.currentActions, rt.warnings, nil

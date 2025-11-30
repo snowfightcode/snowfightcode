@@ -4,6 +4,7 @@ import (
 	"snowfight/internal/config"
 	"snowfight/internal/game"
 	"testing"
+	"strings"
 )
 
 func TestMove_API(t *testing.T) {
@@ -488,5 +489,39 @@ func TestRun_TimeoutWarning(t *testing.T) {
 	}
 	if !found {
 		t.Fatalf("expected timeout warning, got %+v", warnings)
+	}
+}
+
+func TestRun_OutOfMemoryWarning(t *testing.T) {
+	cfg := config.Default()
+	cfg.Runtime.MaxMemoryBytes = 262144 // 256KB to provoke OOM
+
+	rt := NewQuickJSRuntime(cfg, 1)
+	defer rt.Close()
+
+	code := `
+		function run(state) {
+			// Allocate a large array to exceed the 256KB QuickJS heap limit
+			const ary1 = Array.from({ length: 1024 * 100 }, () => 'A');
+		}
+	`
+	if err := rt.Load(code); err != nil {
+		t.Fatalf("failed to load code: %v", err)
+	}
+
+	_, warnings, err := rt.Run(game.GameState{})
+	if err != nil {
+		t.Fatalf("expected warning instead of error, got %v", err)
+	}
+
+	found := false
+	for _, w := range warnings {
+		if w.API == "run" && (strings.Contains(w.Warning, "out of memory") || strings.Contains(w.Warning, "execution error")) {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected execution error warning, got %+v", warnings)
 	}
 }
