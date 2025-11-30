@@ -1,0 +1,23 @@
+[match]
+max_ticks = 1
+
+[field]
+width = 1000
+height = 1000
+
+[snowbot]
+min_move = 1
+max_move = 10
+max_snowball = 10
+max_flying_snowball = 3
+
+[snowball]
+max_flying_distance = 100
+speed = 10
+damage_radius = 5
+damage = 10
+
+[runtime]
+max_memory_bytes = 524288
+max_stack_bytes = 1048576
+tick_timeout_ms = 100

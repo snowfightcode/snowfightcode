@@ -25,6 +25,15 @@ SnowFight is a programming game where you write JavaScript code to control auton
 
 ## 🚀 Quick Start
 
+### Prerequisites
+
+- Go 1.22+ (CGO enabled; `CGO_ENABLED` must not be set to `0`)
+- A C compiler  
+  - macOS: install Xcode Command Line Tools (`xcode-select --install`)  
+  - Linux: install `build-essential` (gcc/clang)  
+  - Windows (MinGW or similar): ensure a toolchain matching your target arch is available
+- No external QuickJS build is needed: prebuilt libs ship in `vendor/github.com/buke/quickjs-go/deps/libs` for darwin/linux/windows (amd64/arm64). Cross-compiling outside these OS/arch combos requires providing a compatible `libquickjs` yourself.
+
 ### 1. Install
 
 ```bash
@@ -32,8 +41,12 @@ SnowFight is a programming game where you write JavaScript code to control auton
 git clone https://github.com/maloninc/snowfight.git
 cd snowfight
 
-# Build the binary
-go build -o snowfight ./cmd/snowfight
+# Fetch deps so prebuilt libquickjs is in module cache (skip if already downloaded)
+CGO_ENABLED=1 go mod download github.com/buke/quickjs-go@v0.6.6
+
+# Build the binary (do NOT set GOFLAGS=-mod=vendor)
+# On macOS, add -ldflags="-buildid=" to avoid Gatekeeper build-id checks
+CGO_ENABLED=1 go build -ldflags="-buildid=" -o snowfight ./cmd/snowfight
 ```
 
 ### 2. Create Your First Bot
