@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"snowfight/internal/config"
 	"snowfight/internal/game"
 	"snowfight/internal/js"
@@ -49,6 +50,20 @@ func runMatch(args []string) error {
 	}()
 
 	engine := game.NewGame(cfg, len(args))
+
+	// Output metadata record
+	botNames := make([]string, len(args))
+	for i, arg := range args {
+		base := filepath.Base(arg)
+		botNames[i] = strings.TrimSuffix(base, filepath.Ext(base))
+	}
+	metaRecord := map[string]interface{}{
+		"type":     "meta",
+		"botNames": botNames,
+	}
+	if metaBytes, err := json.Marshal(metaRecord); err == nil {
+		fmt.Println(string(metaBytes))
+	}
 
 	// Run for max_ticks from config
 	for i := 0; i < cfg.Match.MaxTicks; i++ {
