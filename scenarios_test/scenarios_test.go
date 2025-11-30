@@ -384,3 +384,55 @@ func TestScenario09_TimeoutWarning(t *testing.T) {
 		t.Fatalf("expected timeout warning for player 1, got %+v %+v", warnings1, warnings2)
 	}
 }
+
+func TestScenario10_OOMWarning(t *testing.T) {
+	scenarioDir := "testdata/scenarios/10_oom"
+
+	cfg, err := config.Load(filepath.Join(scenarioDir, "config.toml"))
+	if err != nil {
+		t.Fatalf("failed to load config: %v", err)
+	}
+
+	p1Code, err := os.ReadFile(filepath.Join(scenarioDir, "p1.js"))
+	if err != nil {
+		t.Fatalf("failed to read p1.js: %v", err)
+	}
+	p2Code, err := os.ReadFile(filepath.Join(scenarioDir, "p2.js"))
+	if err != nil {
+		t.Fatalf("failed to read p2.js: %v", err)
+	}
+
+	rt1 := js.NewQuickJSRuntime(cfg, 1)
+	defer rt1.Close()
+	if err := rt1.Load(string(p1Code)); err != nil {
+		t.Fatalf("failed to load p1.js: %v", err)
+	}
+
+	rt2 := js.NewQuickJSRuntime(cfg, 2)
+	defer rt2.Close()
+	if err := rt2.Load(string(p2Code)); err != nil {
+		t.Fatalf("failed to load p2.js: %v", err)
+	}
+
+	engine := game.NewGame(cfg, 2)
+
+	_, warnings1, err := rt1.Run(engine.State)
+	if err != nil {
+		t.Fatalf("unexpected error from p1: %v", err)
+	}
+	_, warnings2, err := rt2.Run(engine.State)
+	if err != nil {
+		t.Fatalf("unexpected error from p2: %v", err)
+	}
+
+	found := false
+	for _, w := range append(warnings1, warnings2...) {
+		if w.Player == 1 && strings.Contains(strings.ToLower(w.Warning), "memory") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected OOM warning for player 1, got %+v %+v", warnings1, warnings2)
+	}
+}
