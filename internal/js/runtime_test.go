@@ -449,3 +449,44 @@ func TestScan_API(t *testing.T) {
         t.Errorf("TestScan_API case 2 failed: %v", err)
     }
 }
+
+func TestRun_TimeoutWarning(t *testing.T) {
+	cfg := config.Default()
+	cfg.Runtime.TickTimeoutMs = 50
+
+	rt := NewQuickJSRuntime(cfg, 1)
+	defer rt.Close()
+
+	code := `
+		function run(state) {
+			while (true) {}
+		}
+	`
+	if err := rt.Load(code); err != nil {
+		t.Fatalf("failed to load code: %v", err)
+	}
+
+	actions, warnings, err := rt.Run(game.GameState{})
+	if err != nil {
+		t.Fatalf("expected timeout to surface as warning, got error: %v", err)
+	}
+
+	if len(actions) != 0 {
+		t.Fatalf("expected no actions on timeout, got %d", len(actions))
+	}
+
+	if len(warnings) == 0 {
+		t.Fatalf("expected at least one warning for timeout")
+	}
+
+	found := false
+	for _, w := range warnings {
+		if w.Warning == "execution timed out" && w.API == "run" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatalf("expected timeout warning, got %+v", warnings)
+	}
+}
