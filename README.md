@@ -44,9 +44,10 @@ cd snowfight
 # Fetch deps so prebuilt libquickjs is in module cache (skip if already downloaded)
 CGO_ENABLED=1 go mod download github.com/buke/quickjs-go@v0.6.6
 
-# Build the binary (do NOT set GOFLAGS=-mod=vendor)
+# Build the binary
+# IMPORTANT: Use -mod=mod to ensure QuickJS native libraries are properly linked
 # On macOS, add -ldflags="-buildid=" to avoid Gatekeeper build-id checks
-CGO_ENABLED=1 go build -ldflags="-buildid=" -o snowfight ./cmd/snowfight
+CGO_ENABLED=1 go build -mod=mod -ldflags="-buildid=" -o snowfight ./cmd/snowfight
 ```
 
 ### 2. Create Your First Bot
@@ -185,6 +186,10 @@ go install ./cmd/snowfight
 # View the visualization
 ./snowfight visualize match.jsonl
 open dist/index.html
+
+# Run a league (fetch bot URLs from GitHub)
+export GITHUB_TOKEN=your_token_here  # Optional, for higher rate limits
+./snowfight league
 ```
 
 ### Example Bots
