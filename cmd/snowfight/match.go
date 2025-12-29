@@ -14,6 +14,10 @@ import (
 )
 
 func runMatch(args []string) error {
+	return runMatchWithWriter(args, os.Stdout)
+}
+
+func runMatchWithWriter(args []string, output io.Writer) error {
 	if len(args) < 2 {
 		return fmt.Errorf("usage: snowfight match <js-file-1> <js-file-2> ... <js-file-N>")
 	}
@@ -62,7 +66,7 @@ func runMatch(args []string) error {
 		"botNames": botNames,
 	}
 	if metaBytes, err := json.Marshal(metaRecord); err == nil {
-		fmt.Println(string(metaBytes))
+		fmt.Fprintln(output, string(metaBytes))
 	}
 
 	// Run for max_ticks from config
@@ -102,7 +106,7 @@ func runMatch(args []string) error {
 				"warning":      w.Warning,
 			}
 			j, _ := json.Marshal(record)
-			fmt.Println(string(j))
+			fmt.Fprintln(output, string(j))
 			fmt.Fprintf(os.Stderr, "Warning: Player %d, %s\n", w.Player, w.Warning)
 		}
 
@@ -119,7 +123,7 @@ func runMatch(args []string) error {
 		if err != nil {
 			return fmt.Errorf("json marshal error: %w", err)
 		}
-		fmt.Println(string(bytes))
+		fmt.Fprintln(output, string(bytes))
 
 		// Check win condition
 		if engine.IsGameOver() {
