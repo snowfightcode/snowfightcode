@@ -1,4 +1,4 @@
-# ❄️ SnowFight: Code
+# ❄️ [SnowFight: Code](https://snowfightcode.github.io/snowfightcode/)
 
 > A programming game where autonomous bots battle with snowballs in a 2D arena
 
@@ -111,7 +111,7 @@ Want to compete against other bots? Join the automated league!
 
 3. **That's it!** Your bot will automatically be included in the next league run
 
-The league runs automatically every day, and all submitted bots compete in round-robin matches. Check the [League Results](https://maloninc.github.io/snowfight/league.html) to see the current rankings!
+The league runs automatically every day, and all submitted bots compete in round-robin matches. Check the [League Results](https://snowfightcode.github.io/snowfightcode/league.html) to see the current rankings!
 
 ## 📖 Bot Programming Guide
 
