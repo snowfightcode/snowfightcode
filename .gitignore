@@ -15,4 +15,4 @@ tmp
 # Generated
 dist/
 *.jsonl
-snowfight
+/snowfight
