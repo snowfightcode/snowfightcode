@@ -209,11 +209,11 @@ export GITHUB_TOKEN=your_token_here  # Optional, for higher rate limits
 ```
 
 ### Example Bots
-
-Check out the example bots in `testdata/` and `scenarios_test/testdata/scenarios/`:
-- `testdata/p1.js` - Simple movement bot
-- `testdata/p2.js` - Simple turning bot
-- `scenarios_test/testdata/scenarios/04_snowball_hit/p1.js` - Snowball throwing example
+- https://github.com/maloninc/sfc-snowbot-random_walker - Random Walker (CROBOTS-inspired)
+- https://github.com/maloninc/sfc-snowbot-wall_hugger - Wall Hugger (CROBOTS-inspired)
+- https://github.com/maloninc/sfc-snowbot-sniper - Sniper (CROBOTS-inspired)
+- https://github.com/maloninc/sfc-snowbot-orbit_evader - Evasive Bot (CROBOTS-inspired)
+- https://github.com/maloninc/sfc-snowbot-spiral_hunter - Spiral Hunter (CROBOTS-inspired)
 
 ## 🤝 Contributing
 
