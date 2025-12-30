@@ -1,0 +1,50 @@
+name: SnowFight League Update
+
+on:
+  schedule:
+    # Run daily at 00:00 UTC (09:00 JST)
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write
+
+jobs:
+  update-league:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22.4'
+          cache: true
+      
+      - name: Build snowfight
+        run: |
+          CGO_ENABLED=1 go build -mod=mod -o snowfight ./cmd/snowfight
+      
+      - name: Run league matches
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LEAGUE_WORKERS: 16
+        run: |
+          ./snowfight fetch | ./snowfight league > docs/league.md
+      
+      - name: Configure Git
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+      
+      - name: Commit and push changes
+        run: |
+          git add docs/league.md
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update league results - $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+            git push
+          fi
