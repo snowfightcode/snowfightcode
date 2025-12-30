@@ -32,7 +32,7 @@ SnowFight is a programming game where you write JavaScript code to control auton
   - macOS: install Xcode Command Line Tools (`xcode-select --install`)  
   - Linux: install `build-essential` (gcc/clang)  
   - Windows (MinGW or similar): ensure a toolchain matching your target arch is available
-- No external QuickJS build is needed: prebuilt libs ship in `vendor/github.com/buke/quickjs-go/deps/libs` for darwin/linux/windows (amd64/arm64). Cross-compiling outside these OS/arch combos requires providing a compatible `libquickjs` yourself.
+- No external QuickJS build is needed: prebuilt libs ship with the `github.com/buke/quickjs-go` module for darwin/linux/windows (amd64/arm64). Cross-compiling outside these OS/arch combos requires providing a compatible `libquickjs` yourself.
 
 ### 1. Install
 
@@ -57,7 +57,7 @@ CGO_ENABLED=1 go build -mod=mod -ldflags="-buildid=" -o snowfight ./cmd/snowfigh
 ```
 
 - `CGO_ENABLED=1` - Required for QuickJS native library
-- `-mod=mod` - Ensures QuickJS native libraries are properly linked
+- `-mod=mod` - Ensures QuickJS native libraries are pulled from the module cache (ignores vendor)
 - `-ldflags="-buildid="` - Avoids macOS Gatekeeper build-id checks
 
 </details>
