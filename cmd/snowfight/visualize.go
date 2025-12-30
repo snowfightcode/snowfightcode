@@ -60,7 +60,29 @@ func runVisualize(args []string) error {
 		return fmt.Errorf("failed to generate sketch.js: %w", err)
 	}
 
+	// Copy SVG assets
+	if err := copyAssets(distDir); err != nil {
+		return fmt.Errorf("failed to copy assets: %w", err)
+	}
+
 	fmt.Printf("Visualization generated in %s\n", distDir)
+	return nil
+}
+
+func copyAssets(distDir string) error {
+	// Copy snowbot SVG sprite
+	srcPath := "assets/snowbot-blue.svg"
+	dstPath := filepath.Join(distDir, "snowbot-blue.svg")
+
+	data, err := os.ReadFile(srcPath)
+	if err != nil {
+		return fmt.Errorf("failed to read %s: %w", srcPath, err)
+	}
+
+	if err := os.WriteFile(dstPath, data, 0644); err != nil {
+		return fmt.Errorf("failed to write %s: %w", dstPath, err)
+	}
+
 	return nil
 }
 
@@ -235,11 +257,29 @@ let tickDisplay;
 let warningsByTick = {};
 let botNames = {};
 let allWarnings = []; // Flat list for log panel
+let snowbotSprite; // SVG sprite
 
 // Game constants (should match Go config)
 const FIELD_WIDTH = 1000;
 const FIELD_HEIGHT = 1000;
 const SCALE = 0.6; // Scale down to fit screen
+
+// Color palette with hue rotation values (from blue base)
+const COLOR_PALETTE = [
+    { name: 'Blue',   hue: 0,   primary: '#4A90E2' },
+    { name: 'Red',    hue: 220, primary: '#E24A4A' },
+    { name: 'Green',  hue: 100, primary: '#4AE27C' },
+    { name: 'Yellow', hue: 50,  primary: '#E2D44A' },
+    { name: 'Purple', hue: 270, primary: '#9B4AE2' },
+    { name: 'Orange', hue: 30,  primary: '#E2904A' },
+    { name: 'Cyan',   hue: 180, primary: '#4AE2E2' },
+    { name: 'Pink',   hue: 300, primary: '#E24A9B' }
+];
+
+function preload() {
+    // Load the snowbot sprite
+    snowbotSprite = loadImage('snowbot-blue.svg');
+}
 
 function setup() {
     let canvas = createCanvas(FIELD_WIDTH * SCALE, FIELD_HEIGHT * SCALE);
@@ -267,6 +307,7 @@ function setup() {
 
     frameRate(30); // Playback speed
 }
+
 
 function parseMatchData(lines) {
     for (let line of lines) {
@@ -410,12 +451,11 @@ function draw() {
         // Draw Players
         if (state.players && state.players.length > 0) {
             for (let i = 0; i < state.players.length; i++) {
-                const colors = ['blue', 'red', 'green', 'purple', 'orange', 'cyan'];
-                drawPlayer(state.players[i], colors[i % colors.length], i + 1);
+                drawPlayer(state.players[i], null, i + 1);
             }
         } else { // legacy P1/P2
-            drawPlayer(state.p1, 'blue', 1);
-            drawPlayer(state.p2, 'red', 2);
+            drawPlayer(state.p1, null, 1);
+            drawPlayer(state.p2, null, 2);
         }
         // Draw Snowballs
         if (state.snowballs) {
@@ -436,34 +476,52 @@ function drawPlayer(p, colorStr, playerID) {
     push();
     translate(p.x, -p.y); // invert Y so north is up
     
-    // Body
-    fill(colorStr);
-    stroke(0);
-    strokeWeight(2);
-    ellipse(0, 0, 30, 30); // Assuming player radius approx 15
+    // Get color palette index (playerID - 1 to make it 0-indexed)
+    let colorIndex = (playerID - 1) % COLOR_PALETTE.length;
+    let colorInfo = COLOR_PALETTE[colorIndex];
     
-    // Direction indicator
+    // Rotate to match player angle
     rotate(radians(p.angle));
-    line(0, 0, 0, -25); // Pointing "up" relative to player
     
-    // HP Bar (drawn above player, so rotate back)
+    // Apply color tint using p5.js tint() function
+    // This is more reliable than CSS filters for cross-browser compatibility
+    let c = color(colorInfo.primary);
+    tint(c);
+
+    
+    // Draw sprite (centered, sprite is 64x64)
+    imageMode(CENTER);
+    image(snowbotSprite, 0, 0, 100, 100); // Scale to 100x100 for game
+
+    
+    // Reset tint
+    noTint();
+
+    
+    // Rotate back for UI elements
     rotate(-radians(p.angle));
+    
+    // HP Bar (adjusted for larger sprite)
     noStroke();
     fill(255, 0, 0);
-    rect(0, -25, 40, 6);
+    rectMode(CENTER);
+    rect(0, -60, 60, 8);
     fill(0, 255, 0);
-    let hpWidth = map(p.hp, 0, 100, 0, 40);
-    rect(0, -25, hpWidth, 6);
+    let hpWidth = map(p.hp, 0, 100, 0, 60);
+    rectMode(CORNER);
+    rect(-30, -64, hpWidth, 8);
 
-    // Name
+    // Name (adjusted for larger sprite)
     fill(0);
     textAlign(CENTER, BOTTOM);
     textSize(14);
     let name = botNames[playerID] || ("P" + playerID);
-    text(name, 0, -50);
+    text(name, 0, -72);
+
     
     pop();
 }
+
 
 function drawSnowball(sb) {
     push();

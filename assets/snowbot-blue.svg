@@ -1,0 +1,59 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  
+  <!-- Main hexagonal body -->
+  <g transform="translate(32, 32)">
+
+    <!-- Outer hexagon (darker blue) -->
+    <path d="M 0,-22 L 19,-11 L 19,11 L 0,22 L -19,11 L -19,-11 Z" 
+          fill="#2E5C8A" stroke="#1A3A5A" stroke-width="2"/>
+    
+    <!-- Inner hexagon (bright blue) -->
+    <path d="M 0,-18 L 15.5,-9 L 15.5,9 L 0,18 L -15.5,9 L -15.5,-9 Z" 
+          fill="#4A90E2" stroke="#3A7AC2" stroke-width="1.5"/>
+    
+    <!-- Decorative hexagonal pattern in center -->
+    <path d="M 0,-8 L 7,-4 L 7,4 L 0,8 L -7,4 L -7,-4 Z" 
+          fill="#6AB0FF" stroke="#3A7AC2" stroke-width="1" opacity="0.6"/>
+    
+    <!-- f(x) symbol in center -->
+    <text x="-6" y="3" font-family="Arial, sans-serif" font-size="10" 
+          fill="white" font-weight="bold" font-style="italic">f(x)</text>
+    
+    <!-- Small decorative dots (sensors) -->
+    <circle cx="0" cy="-14" r="1.5" fill="#6AB0FF"/>
+    <circle cx="12" cy="-7" r="1.5" fill="#6AB0FF"/>
+    <circle cx="12" cy="7" r="1.5" fill="#6AB0FF"/>
+    <circle cx="0" cy="14" r="1.5" fill="#6AB0FF"/>
+    <circle cx="-12" cy="7" r="1.5" fill="#6AB0FF"/>
+    <circle cx="-12" cy="-7" r="1.5" fill="#6AB0FF"/>
+    
+    <!-- Antenna on top -->
+    <line x1="0" y1="-22" x2="0" y2="-28" stroke="#2E5C8A" stroke-width="2"/>
+    <circle cx="0" cy="-28" r="3" fill="#6AB0FF" stroke="#2E5C8A" stroke-width="1.5"/>
+    
+    <!-- Side panels (mechanical details) -->
+    <rect x="-18" y="-6" width="4" height="12" rx="1" 
+          fill="#3A7AC2" stroke="#2E5C8A" stroke-width="1"/>
+    <rect x="14" y="-6" width="4" height="12" rx="1" 
+          fill="#3A7AC2" stroke="#2E5C8A" stroke-width="1"/>
+    
+    <!-- Snowball cannon (pointing upward by default) -->
+    <g id="cannon">
+      <!-- Cannon base -->
+      <rect x="-4" y="-22" width="8" height="6" rx="2" 
+            fill="#2E5C8A" stroke="#1A3A5A" stroke-width="1.5"/>
+      
+      <!-- Cannon barrel -->
+      <rect x="-3" y="-32" width="6" height="12" rx="2" 
+            fill="#3A7AC2" stroke="#2E5C8A" stroke-width="1.5"/>
+      
+      <!-- Cannon tip -->
+      <rect x="-2.5" y="-34" width="5" height="4" rx="1.5" 
+            fill="#4A90E2" stroke="#2E5C8A" stroke-width="1"/>
+      
+      <!-- Snowball at tip -->
+      <circle cx="0" cy="-36" r="3" fill="white" stroke="#CCCCCC" stroke-width="1"/>
+      <circle cx="-1" cy="-37" r="1" fill="#F0F0F0" opacity="0.8"/>
+    </g>
+  </g>
+</svg>
