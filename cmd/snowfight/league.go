@@ -145,6 +145,7 @@ func runLeague(args []string) error {
 
 	// Output rankings
 	fmt.Println("## Rankings")
+	fmt.Println("")
 	fmt.Println("| Rank | Bot | Wins | Losses | Draws | Win Rate |")
 	fmt.Println("|------|-----|------|--------|-------|----------|")
 
