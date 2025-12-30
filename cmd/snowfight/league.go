@@ -108,7 +108,16 @@ func runLeague(args []string) error {
 	fmt.Printf("# SnowFight League Results\n\n")
 	fmt.Printf("**Date**: %s\n\n", time.Now().Format("2006-01-02 15:04:05"))
 	fmt.Printf("- **Total Bots**: %d\n", len(botURLs))
-	fmt.Printf("- **Total Matches**: %d\n", totalMatches)
+	fmt.Printf("- **Total Matches**: %d\n\n", totalMatches)
+
+	// Output config
+	configContent, err := readConfigForDisplay()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: could not read config.toml: %v\n", err)
+	} else {
+		fmt.Printf("## Match Configuration\n\n")
+		fmt.Printf("```toml\n%s```\n\n", configContent)
+	}
 
 	// Run matches in parallel
 	results := runMatchesParallel(allPairs, workers)
@@ -153,6 +162,15 @@ func runLeague(args []string) error {
 	}
 
 	return nil
+}
+
+// readConfigForDisplay reads config.toml and returns it as a formatted string
+func readConfigForDisplay() (string, error) {
+	data, err := os.ReadFile("config.toml")
+	if err != nil {
+		return "", fmt.Errorf("reading config.toml: %w", err)
+	}
+	return string(data), nil
 }
 
 // getWorkerCount returns the number of workers from LEAGUE_WORKERS env var, default 8
