@@ -14,6 +14,27 @@ import (
 	"time"
 )
 
+func showLeagueHelp() {
+	fmt.Println("Usage: snowfight league < bots.txt")
+	fmt.Println()
+	fmt.Println("Run a league tournament with bots from stdin.")
+	fmt.Println()
+	fmt.Println("Input:")
+	fmt.Println("  One bot URL or file path per line from stdin")
+	fmt.Println()
+	fmt.Println("Environment variables:")
+	fmt.Println("  LEAGUE_WORKERS   Number of parallel workers (default: 8)")
+	fmt.Println()
+	fmt.Println("Output:")
+	fmt.Println("  Markdown table with rankings and statistics")
+	fmt.Println()
+	fmt.Println("Example:")
+	fmt.Println("  snowfight fetch > bots.txt")
+	fmt.Println("  snowfight league < bots.txt")
+}
+
+// BotStats tracks statistics for each bot
+
 // BotStats tracks statistics for each bot
 type BotStats struct {
 	Name    string
@@ -40,6 +61,12 @@ type MatchResult struct {
 
 // runLeague reads bot URLs from stdin, runs round-robin tournament in parallel, and outputs ranked results.
 func runLeague(args []string) error {
+	// Check for help flags
+	if len(args) > 0 && (args[0] == "-h" || args[0] == "--help") {
+		showLeagueHelp()
+		return nil
+	}
+
 	// Read bot URLs from stdin
 	var botURLs []string
 	scanner := bufio.NewScanner(os.Stdin)
@@ -108,7 +135,7 @@ func runLeague(args []string) error {
 	})
 
 	// Output rankings
-	fmt.Println("## Rankings\n")
+	fmt.Println("## Rankings")
 	fmt.Println("| Rank | Bot | Wins | Losses | Draws | Win Rate |")
 	fmt.Println("|------|-----|------|--------|-------|----------|")
 

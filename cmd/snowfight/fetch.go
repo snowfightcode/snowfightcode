@@ -11,8 +11,30 @@ import (
 	"golang.org/x/oauth2"
 )
 
+func showFetchHelp() {
+	fmt.Println("Usage: snowfight fetch")
+	fmt.Println()
+	fmt.Println("Fetch bot URLs from GitHub repositories matching 'sfc-snowbot-*'.")
+	fmt.Println()
+	fmt.Println("Environment variables:")
+	fmt.Println("  GITHUB_TOKEN   Optional GitHub API token for higher rate limits")
+	fmt.Println()
+	fmt.Println("Output:")
+	fmt.Println("  One raw GitHub URL per line for each bot found")
+	fmt.Println()
+	fmt.Println("Example:")
+	fmt.Println("  snowfight fetch > bots.txt")
+	fmt.Println("  snowfight league < bots.txt")
+}
+
 // runFetch fetches up to 1000 repositories matching sfc-snowbot-*, finds the first .js file in each, and prints its raw URL.
 func runFetch(args []string) error {
+	// Check for help flags
+	if len(args) > 0 && (args[0] == "-h" || args[0] == "--help") {
+		showFetchHelp()
+		return nil
+	}
+
 	// Token for authentication (optional but helps with rate limits)
 	token := os.Getenv("GITHUB_TOKEN")
 	ctx := context.Background()

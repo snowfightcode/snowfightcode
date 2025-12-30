@@ -13,11 +13,36 @@ import (
 	"strings"
 )
 
+func showMatchHelp() {
+	fmt.Println("Usage: snowfight match <js-file-1> <js-file-2> ... <js-file-N>")
+	fmt.Println()
+	fmt.Println("Run a match between bot scripts.")
+	fmt.Println()
+	fmt.Println("Arguments:")
+	fmt.Println("  <js-file>   Path or URL to a bot JavaScript file")
+	fmt.Println()
+	fmt.Println("Examples:")
+	fmt.Println("  snowfight match bot1.js bot2.js")
+	fmt.Println("  snowfight match https://example.com/bot1.js bot2.js")
+	fmt.Println()
+	fmt.Println("Output:")
+	fmt.Println("  JSONL format with match state for each tick")
+}
+
 func runMatch(args []string) error {
 	return runMatchWithWriter(args, os.Stdout)
 }
 
 func runMatchWithWriter(args []string, output io.Writer) error {
+	// Check for help flags
+	if len(args) > 0 && (args[0] == "-h" || args[0] == "--help") {
+		showMatchHelp()
+		return nil
+	}
+
+	if len(args) < 2 {
+		return fmt.Errorf("usage: snowfight match <js-file-1> <js-file-2> ... <js-file-N>")
+	}
 	if len(args) < 2 {
 		return fmt.Errorf("usage: snowfight match <js-file-1> <js-file-2> ... <js-file-N>")
 	}

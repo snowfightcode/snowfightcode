@@ -6,7 +6,33 @@ import (
 	"path/filepath"
 )
 
+func showVisualizeHelp() {
+	fmt.Println("Usage: snowfight visualize <match-log-file>")
+	fmt.Println()
+	fmt.Println("Generate HTML visualization from match output.")
+	fmt.Println()
+	fmt.Println("Arguments:")
+	fmt.Println("  <match-log-file>   JSONL file from 'snowfight match' output")
+	fmt.Println()
+	fmt.Println("Output:")
+	fmt.Println("  Creates dist/index.html with interactive visualization")
+	fmt.Println()
+	fmt.Println("Example:")
+	fmt.Println("  snowfight match bot1.js bot2.js > match.jsonl")
+	fmt.Println("  snowfight visualize match.jsonl")
+	fmt.Println("  open dist/index.html")
+}
+
 func runVisualize(args []string) error {
+	// Check for help flags
+	if len(args) > 0 && (args[0] == "-h" || args[0] == "--help") {
+		showVisualizeHelp()
+		return nil
+	}
+
+	if len(args) != 1 {
+		return fmt.Errorf("usage: snowfight visualize <match-log-file>")
+	}
 	if len(args) != 1 {
 		return fmt.Errorf("usage: snowfight visualize <match-log-file>")
 	}
