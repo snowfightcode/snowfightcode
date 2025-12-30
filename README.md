@@ -91,6 +91,8 @@ function run(state) {
 
 # Visualize the results
 ./snowfight visualize match.jsonl
+# Or stream via stdin
+./snowfight match my_bot.js testdata/p1.js | ./snowfight visualize -
 # Open dist/index.html in your browser
 ```
 

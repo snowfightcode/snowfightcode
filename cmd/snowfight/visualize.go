@@ -2,17 +2,20 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 )
 
 func showVisualizeHelp() {
 	fmt.Println("Usage: snowfight visualize <match-log-file>")
+	fmt.Println("       snowfight visualize - < match.jsonl")
 	fmt.Println()
 	fmt.Println("Generate HTML visualization from match output.")
 	fmt.Println()
 	fmt.Println("Arguments:")
 	fmt.Println("  <match-log-file>   JSONL file from 'snowfight match' output")
+	fmt.Println("  -                  Read JSONL from stdin")
 	fmt.Println()
 	fmt.Println("Output:")
 	fmt.Println("  Creates dist/index.html with interactive visualization")
@@ -20,6 +23,7 @@ func showVisualizeHelp() {
 	fmt.Println("Example:")
 	fmt.Println("  snowfight match bot1.js bot2.js > match.jsonl")
 	fmt.Println("  snowfight visualize match.jsonl")
+	fmt.Println("  snowfight match bot1.js bot2.js | snowfight visualize -")
 	fmt.Println("  open dist/index.html")
 }
 
@@ -30,14 +34,10 @@ func runVisualize(args []string) error {
 		return nil
 	}
 
-	if len(args) != 1 {
-		return fmt.Errorf("usage: snowfight visualize <match-log-file>")
-	}
-	if len(args) != 1 {
+	if len(args) > 1 {
 		return fmt.Errorf("usage: snowfight visualize <match-log-file>")
 	}
 
-	logFile := args[0]
 	distDir := "dist"
 
 	// Create dist directory
@@ -45,10 +45,9 @@ func runVisualize(args []string) error {
 		return fmt.Errorf("failed to create dist directory: %w", err)
 	}
 
-	// Read match log file
-	logContent, err := os.ReadFile(logFile)
+	logContent, err := readVisualizeInput(args)
 	if err != nil {
-		return fmt.Errorf("failed to read log file: %w", err)
+		return err
 	}
 
 	// Generate index.html with embedded data
@@ -63,6 +62,29 @@ func runVisualize(args []string) error {
 
 	fmt.Printf("Visualization generated in %s\n", distDir)
 	return nil
+}
+
+func readVisualizeInput(args []string) (string, error) {
+	if len(args) == 1 && args[0] != "-" {
+		logContent, err := os.ReadFile(args[0])
+		if err != nil {
+			return "", fmt.Errorf("failed to read log file: %w", err)
+		}
+		return string(logContent), nil
+	}
+
+	stat, err := os.Stdin.Stat()
+	if err != nil {
+		return "", fmt.Errorf("failed to read stdin: %w", err)
+	}
+	if (stat.Mode() & os.ModeCharDevice) != 0 {
+		return "", fmt.Errorf("usage: snowfight visualize <match-log-file>")
+	}
+	logContent, err := io.ReadAll(os.Stdin)
+	if err != nil {
+		return "", fmt.Errorf("failed to read stdin: %w", err)
+	}
+	return string(logContent), nil
 }
 
 func generateIndexHTML(path string, logContent string) error {
