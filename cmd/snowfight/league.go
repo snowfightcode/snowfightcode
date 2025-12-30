@@ -116,7 +116,7 @@ func runLeague(args []string) error {
 		fmt.Fprintf(os.Stderr, "Warning: could not read config.toml: %v\n", err)
 	} else {
 		fmt.Printf("## Match Configuration\n\n")
-		fmt.Printf("```toml\n%s```\n\n", configContent)
+		fmt.Printf("```toml\n%s\n```\n\n", strings.TrimSpace(configContent))
 	}
 
 	// Run matches in parallel
