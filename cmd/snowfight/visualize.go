@@ -558,8 +558,39 @@ function drawEndMessage(state) {
     } else if (allDown) {
         msg = 'All players eliminated';
     } else {
-        msg = 'Time up';
+        // Time up - determine winner by HP
+        if (alive.length === 0) {
+            msg = 'Draw - All eliminated';
+        } else if (alive.length === 1) {
+            let winnerID = alive[0];
+            let winnerName = botNames[winnerID] || ("Player " + winnerID);
+            msg = winnerName + " wins (Time up)";
+        } else {
+            // Multiple players alive - compare HP
+            let players = state.players || [state.p1, state.p2];
+            let maxHP = -1;
+            let winnerID = -1;
+            let isDraw = false;
+            
+            for (let i = 0; i < players.length; i++) {
+                if (players[i].hp > maxHP) {
+                    maxHP = players[i].hp;
+                    winnerID = i + 1;
+                    isDraw = false;
+                } else if (players[i].hp === maxHP) {
+                    isDraw = true;
+                }
+            }
+            
+            if (isDraw) {
+                msg = 'Draw - Equal HP';
+            } else {
+                let winnerName = botNames[winnerID] || ("Player " + winnerID);
+                msg = winnerName + " wins (Time up)";
+            }
+        }
     }
+
 
     push();
     fill(0, 0, 0, 160);
