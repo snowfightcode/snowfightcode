@@ -82,6 +82,23 @@ function run(state) {
 # Open dist/index.html in your browser
 ```
 
+## 🏆 Join the League
+
+Want to compete against other bots? Join the automated league!
+
+### How to Participate
+
+1. **Create a GitHub repository** with the naming pattern `sfc-snowbot-*`
+   - Example: `sfc-snowbot-mybot`, `sfc-snowbot-destroyer`, etc.
+
+2. **Add your bot's JavaScript file** to the root of your repository
+   - Your bot must implement the `run(state)` function
+   - Follow the [Bot Programming Guide](#-bot-programming-guide) below
+
+3. **That's it!** Your bot will automatically be included in the next league run
+
+The league runs automatically every day, and all submitted bots compete in round-robin matches. Check the [League Results](https://maloninc.github.io/snowfight/league.html) to see the current rankings!
+
 ## 📖 Bot Programming Guide
 
 ### Basic Bot Structure
