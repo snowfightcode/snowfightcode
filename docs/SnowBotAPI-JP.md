@@ -8,6 +8,17 @@
 6. 対戦時間は **<match.max_ticks>** ティック。
 7. **勝敗条件**: 相手のHPを0にした側が勝利。時間切れ時・同時撃破は勝者なし。
 
+# Stateオブジェクト
+
+`run(state)` には、自分の状態スナップショットが読み取り専用で渡されます（snake_case）。
+
+* `state.tick`: 現在のティック（対戦ログでは1始まり）。
+* `state.x`, `state.y`: 自分の座標。
+* `state.angle`: 自分の向き（0度=北）。
+* `state.hp`: 現在HP。
+* `state.snowball_count`: 所持雪玉数。
+他プレイヤー情報は `state` には含まれません。検知は `scan` を使用します。
+
 # SnowBot API 一覧
 
 ## 移動系

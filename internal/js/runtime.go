@@ -44,6 +44,16 @@ type Warning struct {
 	Args    []interface{} `json:"args,omitempty"`
 }
 
+// ScriptState is the per-player state exposed to bot scripts.
+type ScriptState struct {
+	Tick          int     `json:"tick"`
+	X             float64 `json:"x"`
+	Y             float64 `json:"y"`
+	Angle         float64 `json:"angle"`
+	HP            int     `json:"hp"`
+	SnowballCount int     `json:"snowball_count"`
+}
+
 // NewQuickJSRuntime creates a new QuickJSRuntime instance.
 func NewQuickJSRuntime(cfg *config.Config, playerID int) *QuickJSRuntime {
 	// Configure resource limits
@@ -327,7 +337,8 @@ func (rt *QuickJSRuntime) Run(state game.GameState) ([]game.Action, []Warning, e
 		rt.currentState.Players = legacy
 	}
 
-	stateBytes, err := json.Marshal(state)
+	scriptState := rt.buildScriptState(state)
+	stateBytes, err := json.Marshal(scriptState)
 	if err != nil {
 		return nil, rt.warnings, fmt.Errorf("failed to marshal state: %w", err)
 	}
@@ -411,6 +422,23 @@ func (rt *QuickJSRuntime) Run(state game.GameState) ([]game.Action, []Warning, e
 	}
 
 	return rt.currentActions, rt.warnings, nil
+}
+
+func (rt *QuickJSRuntime) buildScriptState(state game.GameState) ScriptState {
+	player := state.PlayerRef(rt.playerID)
+	if player == nil {
+		return ScriptState{
+			Tick: state.Tick,
+		}
+	}
+	return ScriptState{
+		Tick:          state.Tick,
+		X:             player.X,
+		Y:             player.Y,
+		Angle:         player.Angle,
+		HP:            player.HP,
+		SnowballCount: player.SnowballCount,
+	}
 }
 
 func (rt *QuickJSRuntime) addWarning(msg, api string, args []*quickjs.Value) {

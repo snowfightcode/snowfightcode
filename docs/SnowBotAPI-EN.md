@@ -8,6 +8,17 @@
 6. A match lasts **<match.max_ticks>** ticks.
 7. **Win condition**: The side that reduces the opponent's HP to 0 wins. If time runs out or both are destroyed simultaneously, there is no winner.
 
+# State Object
+
+`run(state)` receives a read-only snapshot of your bot's state. The object uses snake_case field names.
+
+* `state.tick`: current game tick (1-based in match output).
+* `state.x`, `state.y`: your position.
+* `state.angle`: your facing direction in degrees (0 = north).
+* `state.hp`: current HP.
+* `state.snowball_count`: carried snowballs.
+Other players are not exposed in `state`; use `scan` to detect them.
+
 # SnowBot API List
 
 ## Movement

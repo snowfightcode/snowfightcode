@@ -120,9 +120,10 @@ Every bot must implement a `run(state)` function that gets called each game tick
 ```javascript
 function run(state) {
     // state.tick - current game tick
-    // state.players - array of all players (1-based order)
-    // state.p1, state.p2 - first two players (compatibility)
-    // state.snowballs - array of flying snowballs
+    // state.x, state.y - your position
+    // state.angle - your facing direction
+    // state.hp - your health points
+    // state.snowball_count - snowballs in inventory
     
     // Your bot logic here
 }
@@ -130,24 +131,14 @@ function run(state) {
 
 ### State Object
 
-`run(state)` receives a read-only snapshot of the current game state. The object uses snake_case field names.
+`run(state)` receives a read-only snapshot of your bot's state. The object uses snake_case field names.
 
 - `state.tick`: current game tick (1-based in match output).
-- `state.players`: array of all players in 1-based order.
-- `state.p1`, `state.p2`: first two players (kept for backward compatibility).
-- `state.snowballs`: array of flying snowballs.
-
-Player fields:
-- `x`, `y`: position.
-- `hp`: current HP.
-- `angle`: facing direction in degrees (0 = north).
-- `snowball_count`: carried snowballs.
-
-Snowball fields:
-- `id`, `owner_id`
-- `x`, `y`
-- `vx`, `vy`
-- `target`, `traveled`
+- `state.x`, `state.y`: your position.
+- `state.angle`: your facing direction in degrees (0 = north).
+- `state.hp`: current HP.
+- `state.snowball_count`: carried snowballs.
+Other players are not exposed in `state`; use `scan` to detect them.
 
 ### Available APIs
 
