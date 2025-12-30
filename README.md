@@ -113,6 +113,40 @@ Want to compete against other bots? Join the automated league!
 
 The league runs automatically every day, and all submitted bots compete in round-robin matches. Check the [League Results](https://snowfightcode.github.io/snowfightcode/league.html) to see the current rankings!
 
+## ⚙️ Configuration
+
+SnowFight's game parameters can be customized via `config.toml` in the project root. This allows you to adjust match duration, field size, bot capabilities, and more.
+
+### Configuration File Structure
+
+The configuration file is organized into sections:
+
+- **`[match]`** - Match settings (duration, max players, random seed)
+- **`[field]`** - Arena dimensions
+- **`[snowbot]`** - Bot capabilities (movement, HP, snowball capacity)
+- **`[snowball]`** - Projectile behavior (speed, damage, range)
+- **`[runtime]`** - Execution limits (memory, timeout)
+- **`[sensor]`** - Scan resolution limits
+
+### Example Configuration
+
+```toml
+[match]
+max_ticks = 1000           # Maximum duration of the match in ticks
+max_players = 6            # Maximum number of players supported
+
+[snowbot]
+max_hp = 100               # Maximum HP of a SnowBot
+max_snowball = 100         # Maximum number of snowballs a SnowBot can hold
+
+[snowball]
+damage = 10                # Amount of HP damage a snowball causes
+speed = 10                 # Distance a snowball travels per tick
+```
+
+See [`config.toml`](config.toml) for the complete configuration with all available parameters.
+
+
 ## 📖 Bot Programming Guide
 
 ### Basic Bot Structure
@@ -146,7 +180,9 @@ Other players are not exposed in `state`; use `scan` to detect them.
 
 #### Game Rules
 
-1. Players control the snowball-fight robot **SnowBot** using the in-game API. The number of players is variable up to `<match.max_players>`.
+> **Note:** All parameters shown as `<section.parameter>` (e.g., `<snowbot.max_hp>`) can be customized in [`config.toml`](#️-configuration).
+
+1. Players control the snowball-fight robot **SnowBot** using the in-game API. The number of players is variable up to **<match.max_players>**.
 2. A SnowBot can create and carry up to **<snowbot.max_snowball>** snowballs.
 3. A SnowBot can throw its carried snowballs to hit other SnowBots.
 4. A SnowBot hit by a snowball loses **<snowball.damage>** HP.
