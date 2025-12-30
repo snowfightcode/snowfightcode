@@ -1,6 +1,6 @@
-# SnowFight Code
+# SnowFight: Code
 
-Welcome to **SnowFight Code** - a competitive programming game where you write JavaScript bots to battle in snowball fights!
+Welcome to **SnowFight: Code** - a competitive programming game where you write JavaScript bots to battle in snowball fights!
 
 ## 🏆 League Results
 
