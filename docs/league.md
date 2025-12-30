@@ -1,9 +1,13 @@
 # SnowFight League Results
 
-This page will be automatically updated with the latest league results.
+**Date**: 2025-12-30 03:40:38
 
-The league runs daily at 00:00 UTC (09:00 JST).
+- **Total Bots**: 3
+- **Total Matches**: 3
+## Rankings
 
----
-
-*Waiting for first league run...*
+| Rank | Bot | Wins | Losses | Draws | Win Rate |
+|------|-----|------|--------|-------|----------|
+| 1 | `sfc-snowbot-spiral_hunter/spiral_hunter` | 2 | 0 | 0 | 100.0% |
+| 2 | `sfc-snowbot-p1/p1` | 0 | 1 | 1 | 0.0% |
+| 3 | `sfc-snowbot-orbit_evader/orbit_evader` | 0 | 1 | 1 | 0.0% |
