@@ -41,14 +41,26 @@ SnowFight is a programming game where you write JavaScript code to control auton
 git clone https://github.com/maloninc/snowfight.git
 cd snowfight
 
-# Fetch deps so prebuilt libquickjs is in module cache (skip if already downloaded)
-CGO_ENABLED=1 go mod download github.com/buke/quickjs-go@v0.6.6
+# Download dependencies (optional, will be done automatically during build)
+make deps
 
 # Build the binary
-# IMPORTANT: Use -mod=mod to ensure QuickJS native libraries are properly linked
-# On macOS, add -ldflags="-buildid=" to avoid Gatekeeper build-id checks
+make build
+```
+
+<details>
+<summary>💡 What does <code>make build</code> do?</summary>
+
+The Makefile handles the complex build command for you:
+```bash
 CGO_ENABLED=1 go build -mod=mod -ldflags="-buildid=" -o snowfight ./cmd/snowfight
 ```
+
+- `CGO_ENABLED=1` - Required for QuickJS native library
+- `-mod=mod` - Ensures QuickJS native libraries are properly linked
+- `-ldflags="-buildid="` - Avoids macOS Gatekeeper build-id checks
+
+</details>
 
 ### 2. Create Your First Bot
 
@@ -173,38 +185,25 @@ function run(state) {
 For complete API reference and advanced features, see:
 - **[SnowBot API Documentation (日本語)](docs/SnowBotAPI-JP.md)** - Complete API reference in Japanese
 
-## 🛠️ Installation
+## 🛠️ Advanced Usage
 
-### Prerequisites
-- Go 1.22 or later ([Download](https://go.dev/dl/))
-
-### Build from Source
+### Running Tests
 
 ```bash
-# Clone the repository
-git clone https://github.com/maloninc/snowfight.git
-cd snowfight
+# Run all tests
+make test
 
-# Build
-go build -o snowfight ./cmd/snowfight
+# Run tests with verbose output
+make test-verbose
 
-# (Optional) Install to your PATH
-go install ./cmd/snowfight
+# Run scenario tests only
+make test-scenarios
 ```
 
-## 🎮 Usage
-
-### Running Matches
+### Running a League
 
 ```bash
-# Basic match
-./snowfight match bot1.js bot2.js > match.jsonl
-
-# View the visualization
-./snowfight visualize match.jsonl
-open dist/index.html
-
-# Run a league (fetch bot URLs from GitHub)
+# Fetch bot URLs from GitHub and run matches
 export GITHUB_TOKEN=your_token_here  # Optional, for higher rate limits
 ./snowfight league
 ```
