@@ -41,6 +41,7 @@ max_scan = 45              # Maximum scan resolution in degrees
 ```
 
 ## Rankings
+
 | Rank | Bot | Wins | Losses | Draws | Win Rate |
 |------|-----|------|--------|-------|----------|
 | 1 | `sfc-snowbot-spiral_hunter/spiral_hunter` | 3 | 1 | 1 | 60.0% |
