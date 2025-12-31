@@ -2,8 +2,8 @@ name: SnowFight League Update
 
 on:
   schedule:
-    # Run daily at 00:00 UTC (09:00 JST)
-    - cron: '20 1 * * *'
+    # Run daily at 03:10 UTC (12:10 JST)
+    - cron: '10 3 * * *'
   workflow_dispatch: # Allow manual trigger
 
 permissions:
