@@ -1,6 +1,6 @@
 # SnowFight League Results
 
-**Date**: 2026-01-06 05:00:47
+**Date**: 2026-01-07 05:01:42
 
 - **Total Bots**: 6
 - **Total Matches**: 15
@@ -44,9 +44,9 @@ max_scan = 45              # Maximum scan resolution in degrees
 
 | Rank | Bot | Wins | Losses | Draws | Win Rate |
 |------|-----|------|--------|-------|----------|
-| 1 | `sfc-snowbot-spiral_hunter/spiral_hunter` | 3 | 0 | 2 | 60.0% |
-| 2 | `sfc-snowbot-wall_hugger/wall_hugger` | 1 | 0 | 4 | 20.0% |
-| 3 | `sfc-snowbot-sniper/sniper` | 1 | 0 | 4 | 20.0% |
-| 4 | `sfc-snowbot-random_walker/random_walker` | 0 | 1 | 4 | 0.0% |
+| 1 | `sfc-snowbot-sniper/sniper` | 2 | 0 | 3 | 40.0% |
+| 2 | `sfc-snowbot-spiral_hunter/spiral_hunter` | 2 | 0 | 3 | 40.0% |
+| 3 | `sfc-snowbot-wall_hugger/wall_hugger` | 1 | 0 | 4 | 20.0% |
+| 4 | `sfc-snowbot-random_walker/random_walker` | 0 | 0 | 5 | 0.0% |
 | 5 | `sfc-snowbot-p1/p1` | 0 | 2 | 3 | 0.0% |
-| 6 | `sfc-snowbot-orbit_evader/orbit_evader` | 0 | 2 | 3 | 0.0% |
+| 6 | `sfc-snowbot-orbit_evader/orbit_evader` | 0 | 3 | 2 | 0.0% |
