@@ -1,6 +1,6 @@
 # SnowFight League Results
 
-**Date**: 2026-08-04 06:15:28
+**Date**: 2026-08-05 06:11:48
 
 - **Total Bots**: 6
 - **Total Matches**: 15
@@ -47,6 +47,6 @@ max_scan = 45              # Maximum scan resolution in degrees
 | 1 | `sfc-snowbot-spiral_hunter/spiral_hunter` | 4 | 0 | 1 | 80.0% |
 | 2 | `sfc-snowbot-wall_hugger/wall_hugger` | 1 | 0 | 4 | 20.0% |
 | 3 | `sfc-snowbot-sniper/sniper` | 1 | 1 | 3 | 20.0% |
-| 4 | `sfc-snowbot-random_walker/random_walker` | 0 | 1 | 4 | 0.0% |
-| 5 | `sfc-snowbot-p1/p1` | 0 | 2 | 3 | 0.0% |
-| 6 | `sfc-snowbot-orbit_evader/orbit_evader` | 0 | 2 | 3 | 0.0% |
+| 4 | `sfc-snowbot-orbit_evader/orbit_evader` | 1 | 2 | 2 | 20.0% |
+| 5 | `sfc-snowbot-random_walker/random_walker` | 0 | 2 | 3 | 0.0% |
+| 6 | `sfc-snowbot-p1/p1` | 0 | 2 | 3 | 0.0% |
